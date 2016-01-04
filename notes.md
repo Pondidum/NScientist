@@ -1,32 +1,16 @@
 
+* [x] It decides whether or not to run the try block,
+* [ ] Randomizes the order in which use and try blocks are run,
+* [ ] Measures the durations of all behaviors,
+* [ ] Compares the result of try to the result of use,
+* [ ] Swallows (but records) any exceptions raised in the try block, and
+* [ ] Publishes all this information.
 
 
-public void GetTemplate(string name, Brands brand)
+```csharp
+public string GetTemplate(string name, Brands brand)
 {
-  var experiment = new Experiment(
-    "some-test",
-    use: () => GetTemplateEmbedded(name, brand),
-    try: () => GetTemplateService(name, brand)
-  );
-
-  experiment.Run();
-}
-
-
-
-
-public void GetTemplate(string name, Brands brand)
-{
-  Experiment
-    .Create("some-test")
-    .Use(() => GetTemplateEmbedded(name, brand))
-    .Try(() => GetTemplateService(name, brand))
-    .Run();
-}
-
-public void GetTemplate(string name, Brands brand)
-{
-  Experiment
+  return Experiment
     .Create("some-test")
     .Context(context => {
       context.name = name;
@@ -41,3 +25,4 @@ public void GetTemplate(string name, Brands brand)
     })
     .Run();
 }
+```

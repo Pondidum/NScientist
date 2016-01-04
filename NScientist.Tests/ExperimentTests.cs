@@ -49,5 +49,22 @@ namespace NScientist.Tests
 			test.ShouldBe(20);
 			result.ShouldBe(10);
 		}
+
+		[Fact]
+		public void When_the_experiment_is_disabled()
+		{
+			var control = 0;
+			var test = 0;
+
+			var result = Experiment
+				.On(() => control += 10)
+				.Try(() => test += 20)
+				.Enabled(() => false)
+				.Run();
+
+			control.ShouldBe(10);
+			test.ShouldBe(0);
+			result.ShouldBe(10);
+		}
 	}
 }

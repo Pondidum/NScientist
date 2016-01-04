@@ -23,10 +23,12 @@ namespace NScientist
 	{
 		private readonly Func<TResult> _control;
 		private Action _test;
+		private Func<bool> _isEnabled;
 
 		public ExperimentConfig(Func<TResult> action)
 		{
 			_control = action;
+			_isEnabled = () => true;
 		}
 
 		public ExperimentConfig<TResult> Try(Action action)
@@ -35,11 +37,18 @@ namespace NScientist
 			return this;
 		}
 
+		public ExperimentConfig<TResult> Enabled(Func<bool> isEnabled)
+		{
+			_isEnabled = isEnabled;
+			return this;
+		}
+
 		public TResult Run()
 		{
 			try
 			{
-				_test();
+				if (_isEnabled())
+					_test();
 			}
 			catch (Exception)
 			{
@@ -48,6 +57,7 @@ namespace NScientist
 			
 			return _control();
 		}
+
 	}
 }
 
