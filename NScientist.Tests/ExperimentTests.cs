@@ -78,8 +78,8 @@ namespace NScientist.Tests
 				.Try(() => Thread.Sleep(10))
 				.Publish(results =>
 				{
-					results.ControlDuration.ShouldBeInRange(TimeSpan.FromMilliseconds(19), TimeSpan.FromMilliseconds(21));
-					results.TryDuration.ShouldBe(TimeSpan.FromMilliseconds(9), TimeSpan.FromMilliseconds(11));
+					results.ControlDuration.ShouldBeInRange(TimeSpan.FromMilliseconds(15), TimeSpan.FromMilliseconds(25));
+					results.TryDuration.ShouldBe(TimeSpan.FromMilliseconds(5), TimeSpan.FromMilliseconds(15));
 					published = true;
 				})
 				.Run();
