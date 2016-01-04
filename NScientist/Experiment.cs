@@ -68,9 +68,21 @@ namespace NScientist
 				results.TryException = ex;
 			}
 
-			var output = LogTime(() => _control(), elapsed => results.ControlDuration = elapsed);
+			TResult output = default(TResult);
+
+			try
+			{
+				output = LogTime(() => _control(), elapsed => results.ControlDuration = elapsed);
+			}
+			catch (Exception ex)
+			{
+				results.ControlException = ex;
+			}
 
 			_publish(results);
+
+			if (results.ControlException != null)
+				throw results.ControlException;
 
 			return output;
 		}

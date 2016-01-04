@@ -26,14 +26,41 @@ namespace NScientist.Tests
 		public void When_the_try_throws_an_exception()
 		{
 			var control = false;
+			var published = false;
 
 			Experiment
 				.On(new Action(() => control = true))
-				.Try(() => { throw new NotSupportedException(); })
-				.Publish(results => results.TryException.ShouldBeOfType<NotSupportedException>())
+				.Try(() => { throw new TestException(); })
+				.Publish(results =>
+				{
+					results.TryException.ShouldBeOfType<TestException>();
+					published = true;
+				})
 				.Run();
 
 			control.ShouldBe(true);
+			published.ShouldBe(true);
+		}
+
+		[Fact]
+		public void When_the_control_throws_an_exception()
+		{
+			var published = false;
+
+			Should.Throw<TestException>(() =>
+			{
+				Experiment
+					.On(() => { throw new TestException(); })
+					.Try(() => { throw new AlternateException(); })
+					.Publish(results =>
+					{
+						results.ControlException.ShouldBeOfType<TestException>();
+						published = true;
+					})
+					.Run();
+			});
+
+			published.ShouldBe(true);
 		}
 
 		[Fact]
