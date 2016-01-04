@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace NScientist
 {
@@ -24,11 +25,13 @@ namespace NScientist
 		private readonly Func<TResult> _control;
 		private Action _test;
 		private Func<bool> _isEnabled;
+		private Action<Results> _publish;
 
 		public ExperimentConfig(Func<TResult> action)
 		{
 			_control = action;
 			_isEnabled = () => true;
+			_publish = results => { };
 		}
 
 		public ExperimentConfig<TResult> Try(Action action)
@@ -43,21 +46,72 @@ namespace NScientist
 			return this;
 		}
 
+		public ExperimentConfig<TResult> Publish(Action<Results> publish)
+		{
+			_publish = publish;
+			return this;
+		}
+
 		public TResult Run()
 		{
+			var results = new Results();
+
 			try
 			{
 				if (_isEnabled())
-					_test();
+				{
+					LogTime(() => _test(), elapsed => results.TryDuration = elapsed);
+				}
 			}
 			catch (Exception)
 			{
 				//not yet...
 			}
-			
-			return _control();
+
+			var output = LogTime(() => _control(), elapsed => results.ControlDuration = elapsed);
+
+			_publish(results);
+
+			return output;
 		}
 
+		private T LogTime<T>(Func<T> action, Action<TimeSpan> result)
+		{
+			var watch = new Stopwatch();
+
+			try
+			{
+				watch.Start();
+				return action();
+			}
+			finally
+			{
+				watch.Stop();
+				result(watch.Elapsed);
+			}
+		}
+
+		private void LogTime(Action action, Action<TimeSpan> result)
+		{
+			var watch = new Stopwatch();
+
+			try
+			{
+				watch.Start();
+				action();
+			}
+			finally
+			{
+				watch.Stop();
+				result(watch.Elapsed);
+			}
+		}
+	}
+
+	public class Results
+	{
+		public TimeSpan ControlDuration { get; set; }
+		public TimeSpan TryDuration { get; set; }
 	}
 }
 

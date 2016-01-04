@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Shouldly;
 using Xunit;
 
@@ -65,6 +66,25 @@ namespace NScientist.Tests
 			control.ShouldBe(10);
 			test.ShouldBe(0);
 			result.ShouldBe(10);
+		}
+
+		[Fact]
+		public void When_measuring_time_taken()
+		{
+			var published = false;
+
+			Experiment
+				.On(() => Thread.Sleep(20))
+				.Try(() => Thread.Sleep(10))
+				.Publish(results =>
+				{
+					results.ControlDuration.ShouldBeInRange(TimeSpan.FromMilliseconds(19), TimeSpan.FromMilliseconds(21));
+					results.TryDuration.ShouldBe(TimeSpan.FromMilliseconds(9), TimeSpan.FromMilliseconds(11));
+					published = true;
+				})
+				.Run();
+
+			published.ShouldBe(true);
 		}
 	}
 }
