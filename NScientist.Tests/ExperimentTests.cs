@@ -22,6 +22,19 @@ namespace NScientist.Tests
 		}
 
 		[Fact]
+		public void When_the_try_throws_an_exception()
+		{
+			var control = false;
+
+			Experiment
+				.On(new Action(() => control = true))
+				.Try(() => { throw new NotSupportedException(); })
+				.Run();
+
+			control.ShouldBe(true);
+		}
+
+		[Fact]
 		public void When_running_an_action_with_result()
 		{
 			var control = 0;

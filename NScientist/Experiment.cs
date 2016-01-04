@@ -37,7 +37,15 @@ namespace NScientist
 
 		public TResult Run()
 		{
-			_test();
+			try
+			{
+				_test();
+			}
+			catch (Exception)
+			{
+				//not yet...
+			}
+			
 			return _control();
 		}
 	}
