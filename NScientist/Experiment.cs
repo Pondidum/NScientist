@@ -6,25 +6,39 @@ namespace NScientist
 	{
 		public static ExperimentConfig<object> On(Action action)
 		{
-			return new ExperimentConfig<object>();
+			return new ExperimentConfig<object>(() =>
+			{
+				action();
+				return null;
+			});
 		}
 
 		public static ExperimentConfig<T> On<T>(Func<T> action)
 		{
-			return new ExperimentConfig<T>();
+			return new ExperimentConfig<T>(action);
 		}
 	}
 
 	public class ExperimentConfig<TResult>
 	{
+		private readonly Func<TResult> _control;
+		private Action _test;
+
+		public ExperimentConfig(Func<TResult> action)
+		{
+			_control = action;
+		}
+
 		public ExperimentConfig<TResult> Try(Action action)
 		{
-			throw new NotImplementedException();
+			_test = action;
+			return this;
 		}
 
 		public TResult Run()
 		{
-			throw new NotImplementedException();
+			_test();
+			return _control();
 		}
 	}
 }
