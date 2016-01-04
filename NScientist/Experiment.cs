@@ -63,9 +63,9 @@ namespace NScientist
 					LogTime(() => _test(), elapsed => results.TryDuration = elapsed);
 				}
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				//not yet...
+				results.TryException = ex;
 			}
 
 			var output = LogTime(() => _control(), elapsed => results.ControlDuration = elapsed);
@@ -112,6 +112,9 @@ namespace NScientist
 	{
 		public TimeSpan ControlDuration { get; set; }
 		public TimeSpan TryDuration { get; set; }
+
+		public Exception ControlException { get; set; }
+		public Exception TryException { get; set; }
 	}
 }
 

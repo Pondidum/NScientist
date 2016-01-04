@@ -30,6 +30,7 @@ namespace NScientist.Tests
 			Experiment
 				.On(new Action(() => control = true))
 				.Try(() => { throw new NotSupportedException(); })
+				.Publish(results => results.TryException.ShouldBeOfType<NotSupportedException>())
 				.Run();
 
 			control.ShouldBe(true);
