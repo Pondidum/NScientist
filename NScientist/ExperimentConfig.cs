@@ -56,6 +56,8 @@ namespace NScientist
 			
 			if (_isEnabled())
 			{
+				results.ExperimentEnabled = true;
+
 				actions.Add(() =>
 				{
 					var experiment = Run(_test);

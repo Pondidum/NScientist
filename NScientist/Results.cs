@@ -12,5 +12,7 @@ namespace NScientist
 
 		public object ControlResult { get; set; }
 		public object TryResult { get; set; }
+
+		public bool ExperimentEnabled { get; set; }
 	}
 }
