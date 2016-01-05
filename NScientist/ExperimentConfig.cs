@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -42,8 +43,9 @@ namespace NScientist
 			var controlResult = default(TResult);
 
 			var actions = new List<Action>();
+			var experimentEnabled = _isEnabled();
 
-			actions.Add(() =>
+            actions.Add(() =>
 			{
 				var control = Run(_control);
 
@@ -54,7 +56,7 @@ namespace NScientist
 				controlResult = control.Result;
 			});
 			
-			if (_isEnabled())
+			if (experimentEnabled)
 			{
 				results.ExperimentEnabled = true;
 
@@ -70,6 +72,9 @@ namespace NScientist
 			
 			actions.Shuffle();
 			actions.ForEach(action => action());
+
+			if (experimentEnabled)
+				results.Matched = Equals(results.ControlResult, results.TryResult);
 
 			_publish(results);
 

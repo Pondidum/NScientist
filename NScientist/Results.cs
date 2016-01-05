@@ -14,5 +14,7 @@ namespace NScientist
 		public object TryResult { get; set; }
 
 		public bool ExperimentEnabled { get; set; }
+
+		public bool Matched { get; set; }
 	}
 }

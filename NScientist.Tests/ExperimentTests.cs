@@ -135,5 +135,33 @@ namespace NScientist.Tests
 
 			runs.Distinct().Count().ShouldBeGreaterThan(1);
 		}
+
+		[Fact]
+		public void When_the_control_and_experiment_match()
+		{
+			Results result = null;
+
+			Experiment
+				.On(() => "test")
+				.Try(() => "test")
+				.Publish(r => result = r)
+				.Run();
+
+			result.Matched.ShouldBe(true);
+		}
+
+		[Fact]
+		public void When_the_control_and_the_experiment_dont_match()
+		{
+			Results result = null;
+
+			Experiment
+				.On(() => "omg")
+				.Try(() => "oh noes")
+				.Publish(r => result = r)
+				.Run();
+
+			result.Matched.ShouldBe(false);
+		}
 	}
 }
