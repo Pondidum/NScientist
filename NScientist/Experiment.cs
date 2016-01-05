@@ -56,67 +56,62 @@ namespace NScientist
 		{
 			var results = new Results();
 
-			try
+			var control = Run(_control);
+
+			if (_isEnabled())
 			{
-				if (_isEnabled())
+				var experiment = Run(() =>
 				{
-					LogTime(() => _test(), elapsed => results.TryDuration = elapsed);
-				}
-			}
-			catch (Exception ex)
-			{
-				results.TryException = ex;
+					_test();
+					return default(TResult);
+				});
+
+				results.TryException = experiment.Exception;
+				results.TryDuration = experiment.Duration;
+				results.TryResult = experiment.Result;
 			}
 
-			TResult output = default(TResult);
-
-			try
-			{
-				output = LogTime(() => _control(), elapsed => results.ControlDuration = elapsed);
-			}
-			catch (Exception ex)
-			{
-				results.ControlException = ex;
-			}
+			results.ControlException = control.Exception;
+			results.ControlDuration = control.Duration;
+			results.ControlResult = control.Result;
 
 			_publish(results);
 
 			if (results.ControlException != null)
 				throw results.ControlException;
 
-			return output;
+			return control.Result;
 		}
 
-		private T LogTime<T>(Func<T> action, Action<TimeSpan> result)
+		private class RunDto
 		{
-			var watch = new Stopwatch();
+			public TimeSpan Duration;
+			public Exception Exception;
+			public TResult Result;
+		}
+
+		private RunDto Run(Func<TResult> action)
+		{
+			var dto = new RunDto();
+			var sw = new Stopwatch();
 
 			try
 			{
-				watch.Start();
-				return action();
+				sw.Start();
+				dto.Result = action();
+				sw.Stop();
+			}
+			catch (Exception ex)
+			{
+				sw.Stop();
+				dto.Exception = ex;
 			}
 			finally
 			{
-				watch.Stop();
-				result(watch.Elapsed);
+				dto.Duration = sw.Elapsed;
 			}
-		}
 
-		private void LogTime(Action action, Action<TimeSpan> result)
-		{
-			var watch = new Stopwatch();
-
-			try
-			{
-				watch.Start();
-				action();
-			}
-			finally
-			{
-				watch.Stop();
-				result(watch.Elapsed);
-			}
+			return dto;
 		}
 	}
 
@@ -127,6 +122,9 @@ namespace NScientist
 
 		public Exception ControlException { get; set; }
 		public Exception TryException { get; set; }
+
+		public object ControlResult { get; set; }
+		public object TryResult { get; set; }
 	}
 }
 
