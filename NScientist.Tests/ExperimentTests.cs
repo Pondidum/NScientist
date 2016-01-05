@@ -163,5 +163,20 @@ namespace NScientist.Tests
 
 			result.Matched.ShouldBe(false);
 		}
+
+		[Fact]
+		public void When_using_a_custom_comparer()
+		{
+			Results result = null;
+
+			Experiment
+				.On(() => "test")
+				.Try(() => "TEST")
+				.Publish(r => result = r)
+				.CompareWith((control, experiment) => string.Equals(control, experiment, StringComparison.OrdinalIgnoreCase))
+				.Run();
+
+			result.Matched.ShouldBe(true);
+		}
 	}
 }

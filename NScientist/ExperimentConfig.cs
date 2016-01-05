@@ -11,12 +11,14 @@ namespace NScientist
 		private Func<TResult> _test;
 		private Func<bool> _isEnabled;
 		private Action<Results> _publish;
+		private Func<TResult, TResult, bool> _compare;
 
 		public ExperimentConfig(Func<TResult> action)
 		{
 			_control = action;
 			_isEnabled = () => true;
 			_publish = results => { };
+			_compare = (control, experiment) => Equals(control, experiment);
 		}
 
 		public ExperimentConfig<TResult> Try(Func<TResult> action)
@@ -28,6 +30,12 @@ namespace NScientist
 		public ExperimentConfig<TResult> Enabled(Func<bool> isEnabled)
 		{
 			_isEnabled = isEnabled;
+			return this;
+		}
+
+		public ExperimentConfig<TResult> CompareWith(Func<TResult, TResult, bool> compare)
+		{
+			_compare = compare;
 			return this;
 		}
 
@@ -74,7 +82,7 @@ namespace NScientist
 			actions.ForEach(action => action());
 
 			if (experimentEnabled)
-				results.Matched = Equals(results.ControlResult, results.TryResult);
+				results.Matched = _compare((TResult)results.ControlResult, (TResult)results.TryResult);
 
 			_publish(results);
 
