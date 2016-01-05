@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace NScientist
@@ -55,32 +56,46 @@ namespace NScientist
 		public TResult Run()
 		{
 			var results = new Results();
+			var controlResult = default(TResult);
 
-			var control = Run(_control);
+			var actions = new List<Action>();
 
+			actions.Add(() =>
+			{
+				var control = Run(_control);
+
+				results.ControlException = control.Exception;
+				results.ControlDuration = control.Duration;
+				results.ControlResult = control.Result;
+
+				controlResult = control.Result;
+			});
+			
 			if (_isEnabled())
 			{
-				var experiment = Run(() =>
+				actions.Add(() =>
 				{
-					_test();
-					return default(TResult);
+					var experiment = Run(() =>
+					{
+						_test();
+						return default(TResult);
+					});
+
+					results.TryException = experiment.Exception;
+					results.TryDuration = experiment.Duration;
+					results.TryResult = experiment.Result;
 				});
-
-				results.TryException = experiment.Exception;
-				results.TryDuration = experiment.Duration;
-				results.TryResult = experiment.Result;
 			}
-
-			results.ControlException = control.Exception;
-			results.ControlDuration = control.Duration;
-			results.ControlResult = control.Result;
+			
+			actions.Shuffle();
+			actions.ForEach(action => action());
 
 			_publish(results);
 
 			if (results.ControlException != null)
 				throw results.ControlException;
 
-			return control.Result;
+			return controlResult;
 		}
 
 		private class RunDto

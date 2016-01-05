@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Shouldly;
 using Xunit;
@@ -113,6 +115,25 @@ namespace NScientist.Tests
 				.Run();
 
 			published.ShouldBe(true);
+		}
+
+		[Fact]
+		public void When_running_the_order_is_random()
+		{
+			var last = "";
+			var runs = new HashSet<string>();
+
+			var ex = Experiment
+				.On(() => last = "control")
+				.Try(() => last = "try");
+
+			for (int i = 0; i < 1000; i++)
+			{
+				ex.Run();
+				runs.Add(last);
+			}
+
+			runs.Distinct().Count().ShouldBeGreaterThan(1);
 		}
 	}
 }
