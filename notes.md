@@ -4,7 +4,14 @@
 * [x] Measures the durations of all behaviors,
 * [x] Compares the result of try to the result of use,
 * [x] Swallows (but records) any exceptions raised in the try block, and
-* [ ] Publishes all this information.
+* [x] Publishes all this information.
+* [x] Supports custom context
+* [ ] Supports naming of experiments
+* [ ] Supports cleaning of results
+
+
+
+
 
 
 ```csharp

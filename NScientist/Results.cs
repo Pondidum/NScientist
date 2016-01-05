@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace NScientist
 {
@@ -16,5 +17,7 @@ namespace NScientist
 		public bool ExperimentEnabled { get; set; }
 
 		public bool Matched { get; set; }
+
+		public Dictionary<object, object> Context { get; set; }
 	}
 }

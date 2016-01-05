@@ -12,6 +12,7 @@ namespace NScientist
 		private Func<bool> _isEnabled;
 		private Action<Results> _publish;
 		private Func<TResult, TResult, bool> _compare;
+		private Func<Dictionary<object, object>> _createContext;
 
 		public ExperimentConfig(Func<TResult> action)
 		{
@@ -19,6 +20,7 @@ namespace NScientist
 			_isEnabled = () => true;
 			_publish = results => { };
 			_compare = (control, experiment) => Equals(control, experiment);
+			_createContext = () => new Dictionary<object, object>();
 		}
 
 		public ExperimentConfig<TResult> Try(Func<TResult> action)
@@ -39,6 +41,12 @@ namespace NScientist
 			return this;
 		}
 
+		public ExperimentConfig<TResult> Context(Func<Dictionary<object, object>> createContext)
+		{
+			_createContext = createContext;
+			return this;
+		}
+
 		public ExperimentConfig<TResult> Publish(Action<Results> publish)
 		{
 			_publish = publish;
@@ -47,13 +55,17 @@ namespace NScientist
 
 		public TResult Run()
 		{
-			var results = new Results();
+			var results = new Results
+			{
+				Context = _createContext(),
+				ExperimentEnabled = _isEnabled()
+			};
+
 			var controlResult = default(TResult);
 
 			var actions = new List<Action>();
-			var experimentEnabled = _isEnabled();
 
-            actions.Add(() =>
+			actions.Add(() =>
 			{
 				var control = Run(_control);
 
@@ -63,8 +75,8 @@ namespace NScientist
 
 				controlResult = control.Result;
 			});
-			
-			if (experimentEnabled)
+
+			if (results.ExperimentEnabled)
 			{
 				results.ExperimentEnabled = true;
 
@@ -77,11 +89,11 @@ namespace NScientist
 					results.TryResult = experiment.Result;
 				});
 			}
-			
+
 			actions.Shuffle();
 			actions.ForEach(action => action());
 
-			if (experimentEnabled)
+			if (results.ExperimentEnabled)
 				results.Matched = _compare((TResult)results.ControlResult, (TResult)results.TryResult);
 
 			_publish(results);
@@ -122,5 +134,6 @@ namespace NScientist
 
 			return dto;
 		}
+
 	}
 }

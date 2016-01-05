@@ -178,5 +178,22 @@ namespace NScientist.Tests
 
 			result.Matched.ShouldBe(true);
 		}
+
+		[Fact]
+		public void When_adding_information_to_the_context()
+		{
+			Results result = null;
+			Experiment
+				.On(() => "omg")
+				.Try(() => "oh noes")
+				.Context(() => new Dictionary<object, object>
+				{
+					{"one", "two" }
+				})
+				.Publish(r => result = r)
+				.Run();
+
+			result.Context["one"].ShouldBe("two");
+		}
 	}
 }
