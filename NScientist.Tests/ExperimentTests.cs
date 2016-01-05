@@ -9,20 +9,20 @@ namespace NScientist.Tests
 {
 	public class ExperimentTests
 	{
-		[Fact]
-		public void When_running_a_void_action()
-		{
-			var control = false;
-			var test = false;
+		//[Fact]
+		//public void When_running_a_void_action()
+		//{
+		//	var control = false;
+		//	var test = false;
 
-			Experiment
-				.On(new Action(() => control = true))
-				.Try(() => test = true)
-				.Run();
+		//	Experiment
+		//		.On(() => { })
+		//		.Try(() => { })
+		//		.Run();
 
-			control.ShouldBe(true);
-			test.ShouldBe(true);
-		}
+		//	control.ShouldBe(true);
+		//	test.ShouldBe(true);
+		//}
 
 		[Fact]
 		public void When_the_try_throws_an_exception()
@@ -31,7 +31,7 @@ namespace NScientist.Tests
 			var published = false;
 
 			Experiment
-				.On(new Action(() => control = true))
+				.On(() => control = true)
 				.Try(() => { throw new TestException(); })
 				.Publish(results =>
 				{
@@ -52,7 +52,7 @@ namespace NScientist.Tests
 			Should.Throw<TestException>(() =>
 			{
 				Experiment
-					.On(() => { throw new TestException(); })
+					.On<bool>(() => { throw new TestException(); })
 					.Try(() => { throw new AlternateException(); })
 					.Publish(results =>
 					{
@@ -104,8 +104,8 @@ namespace NScientist.Tests
 			var published = false;
 
 			Experiment
-				.On(() => Thread.Sleep(20))
-				.Try(() => Thread.Sleep(10))
+				.On(() => { Thread.Sleep(20); return true; })
+				.Try(() => { Thread.Sleep(10); return true; })
 				.Publish(results =>
 				{
 					results.ControlDuration.ShouldBeInRange(TimeSpan.FromMilliseconds(15), TimeSpan.FromMilliseconds(25));

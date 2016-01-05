@@ -6,15 +6,6 @@ namespace NScientist
 {
 	public class Experiment
 	{
-		public static ExperimentConfig<object> On(Action action)
-		{
-			return new ExperimentConfig<object>(() =>
-			{
-				action();
-				return null;
-			});
-		}
-
 		public static ExperimentConfig<T> On<T>(Func<T> action)
 		{
 			return new ExperimentConfig<T>(action);
@@ -24,7 +15,7 @@ namespace NScientist
 	public class ExperimentConfig<TResult>
 	{
 		private readonly Func<TResult> _control;
-		private Action _test;
+		private Func<TResult> _test;
 		private Func<bool> _isEnabled;
 		private Action<Results> _publish;
 
@@ -35,7 +26,7 @@ namespace NScientist
 			_publish = results => { };
 		}
 
-		public ExperimentConfig<TResult> Try(Action action)
+		public ExperimentConfig<TResult> Try(Func<TResult> action)
 		{
 			_test = action;
 			return this;
@@ -75,11 +66,7 @@ namespace NScientist
 			{
 				actions.Add(() =>
 				{
-					var experiment = Run(() =>
-					{
-						_test();
-						return default(TResult);
-					});
+					var experiment = Run(_test);
 
 					results.TryException = experiment.Exception;
 					results.TryDuration = experiment.Duration;
