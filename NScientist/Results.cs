@@ -19,5 +19,7 @@ namespace NScientist
 		public bool Matched { get; set; }
 
 		public Dictionary<object, object> Context { get; set; }
+
+		public string Name { get; set; }
 	}
 }

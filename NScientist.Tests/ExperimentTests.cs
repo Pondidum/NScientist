@@ -195,5 +195,33 @@ namespace NScientist.Tests
 
 			result.Context["one"].ShouldBe("two");
 		}
+
+		[Fact]
+		public void When_an_experiment_has_no_name()
+		{
+			Results result = null;
+			Experiment
+				.On(() => "omg")
+				.Try(() => "oh noes")
+				.Publish(r => result = r)
+				.Run();
+
+			result.Name.ShouldBe("Unnamed Experiment");
+		}
+
+		[Fact]
+		public void When_setting_the_experiments_name()
+		{
+			Results result = null;
+			Experiment
+				.On(() => "omg")
+				.Try(() => "oh noes")
+				.Called("experiment 01")
+				.Publish(r => result = r)
+				.Run();
+
+			result.Name.ShouldBe("experiment 01");
+		}
+
 	}
 }

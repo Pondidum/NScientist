@@ -6,7 +6,7 @@
 * [x] Swallows (but records) any exceptions raised in the try block, and
 * [x] Publishes all this information.
 * [x] Supports custom context
-* [ ] Supports naming of experiments
+* [x] Supports naming of experiments
 * [ ] Supports cleaning of results
 
 

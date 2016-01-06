@@ -13,6 +13,7 @@ namespace NScientist
 		private Action<Results> _publish;
 		private Func<TResult, TResult, bool> _compare;
 		private Func<Dictionary<object, object>> _createContext;
+		private string _name;
 
 		public ExperimentConfig(Func<TResult> action)
 		{
@@ -21,6 +22,7 @@ namespace NScientist
 			_publish = results => { };
 			_compare = (control, experiment) => Equals(control, experiment);
 			_createContext = () => new Dictionary<object, object>();
+			_name = "Unnamed Experiment";
 		}
 
 		public ExperimentConfig<TResult> Try(Func<TResult> action)
@@ -53,10 +55,17 @@ namespace NScientist
 			return this;
 		}
 
+		public ExperimentConfig<TResult> Called(string name)
+		{
+			_name = name;
+			return this;
+		}
+
 		public TResult Run()
 		{
 			var results = new Results
 			{
+				Name = _name,
 				Context = _createContext(),
 				ExperimentEnabled = _isEnabled()
 			};
@@ -134,6 +143,5 @@ namespace NScientist
 
 			return dto;
 		}
-
 	}
 }
