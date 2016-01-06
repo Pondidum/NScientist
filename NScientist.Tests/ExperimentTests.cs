@@ -223,5 +223,36 @@ namespace NScientist.Tests
 			result.Name.ShouldBe("experiment 01");
 		}
 
+		[Fact]
+		public void When_there_is_no_cleaner_specified()
+		{
+			Results result = null;
+
+			Experiment
+				.On(() => new[] { "1", "2", "3" })
+				.Try(() => new[] { "" })
+				.Publish(r => result = r)
+				.Run();
+
+			result.TryCleanedResult.ShouldBe(null);
+			result.ControlCleanedResult.ShouldBe(null);
+		}
+
+		[Fact]
+		public void When_cleaning_results()
+		{
+			Results result = null;
+
+			Experiment
+				.On(() => new[] { "1", "2", "3" })
+				.Try(() => new string[0])
+				.Clean(results => results.Select(r => Convert.ToInt32(r)))
+				.Publish(r => result = r)
+				.Run();
+
+			result.TryCleanedResult.ShouldBe(Enumerable.Empty<int>());
+			result.ControlCleanedResult.ShouldBe(new[] { 1, 2, 3 });
+		}
+
 	}
 }

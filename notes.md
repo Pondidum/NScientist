@@ -7,7 +7,7 @@
 * [x] Publishes all this information.
 * [x] Supports custom context
 * [x] Supports naming of experiments
-* [ ] Supports cleaning of results
+* [x] Supports cleaning of results
 
 
 

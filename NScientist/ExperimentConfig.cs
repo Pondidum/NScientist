@@ -14,6 +14,7 @@ namespace NScientist
 		private Func<TResult, TResult, bool> _compare;
 		private Func<Dictionary<object, object>> _createContext;
 		private string _name;
+		private Func<TResult, object> _cleaner;
 
 		public ExperimentConfig(Func<TResult> action)
 		{
@@ -23,6 +24,7 @@ namespace NScientist
 			_compare = (control, experiment) => Equals(control, experiment);
 			_createContext = () => new Dictionary<object, object>();
 			_name = "Unnamed Experiment";
+			_cleaner = results => null;
 		}
 
 		public ExperimentConfig<TResult> Try(Func<TResult> action)
@@ -61,6 +63,12 @@ namespace NScientist
 			return this;
 		}
 
+		public ExperimentConfig<TResult> Clean<TCleaned>(Func<TResult, TCleaned> cleaner)
+		{
+			_cleaner = results => cleaner(results);
+			return this;
+		}
+
 		public TResult Run()
 		{
 			var results = new Results
@@ -81,6 +89,7 @@ namespace NScientist
 				results.ControlException = control.Exception;
 				results.ControlDuration = control.Duration;
 				results.ControlResult = control.Result;
+				results.ControlCleanedResult = _cleaner(control.Result);
 
 				controlResult = control.Result;
 			});
@@ -96,6 +105,7 @@ namespace NScientist
 					results.TryException = experiment.Exception;
 					results.TryDuration = experiment.Duration;
 					results.TryResult = experiment.Result;
+					results.TryCleanedResult = _cleaner(experiment.Result);
 				});
 			}
 

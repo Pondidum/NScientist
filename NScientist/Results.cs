@@ -14,6 +14,9 @@ namespace NScientist
 		public object ControlResult { get; set; }
 		public object TryResult { get; set; }
 
+		public object ControlCleanedResult { get; set; }
+		public object TryCleanedResult { get; set; }
+
 		public bool ExperimentEnabled { get; set; }
 
 		public bool Matched { get; set; }
