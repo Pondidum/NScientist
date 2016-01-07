@@ -5,7 +5,7 @@ namespace NScientist
 {
 	internal static class Extensions
 	{
-		private static Random rng = new Random();
+		private static readonly Random Randomiser = new Random();
 
 		public static void Shuffle<T>(this IList<T> list)
 		{
@@ -14,7 +14,7 @@ namespace NScientist
 			while (n > 1)
 			{
 				n--;
-				var k = rng.Next(n + 1);
+				var k = Randomiser.Next(n + 1);
 				var value = list[k];
 
 				list[k] = list[n];

@@ -9,21 +9,6 @@ namespace NScientist.Tests
 {
 	public class ExperimentTests
 	{
-		//[Fact]
-		//public void When_running_a_void_action()
-		//{
-		//	var control = false;
-		//	var test = false;
-
-		//	Experiment
-		//		.On(() => { })
-		//		.Try(() => { })
-		//		.Run();
-
-		//	control.ShouldBe(true);
-		//	test.ShouldBe(true);
-		//}
-
 		[Fact]
 		public void When_the_try_throws_an_exception()
 		{
@@ -35,7 +20,7 @@ namespace NScientist.Tests
 				.Try(() => { throw new TestException(); })
 				.Publish(results =>
 				{
-					results.TryException.ShouldBeOfType<TestException>();
+					results.ExperimentException.ShouldBeOfType<TestException>();
 					published = true;
 				})
 				.Run();
@@ -108,7 +93,7 @@ namespace NScientist.Tests
 				.Publish(results =>
 				{
 					results.ControlDuration.ShouldBeGreaterThanOrEqualTo(TimeSpan.FromMilliseconds(20));
-					results.TryDuration.ShouldBeGreaterThanOrEqualTo(TimeSpan.FromMilliseconds(10));
+					results.ExperimentDuration.ShouldBeGreaterThanOrEqualTo(TimeSpan.FromMilliseconds(10));
 					published = true;
 				})
 				.Run();
@@ -233,7 +218,7 @@ namespace NScientist.Tests
 				.Publish(r => result = r)
 				.Run();
 
-			result.TryCleanedResult.ShouldBe(null);
+			result.ExperimentCleanedResult.ShouldBe(null);
 			result.ControlCleanedResult.ShouldBe(null);
 		}
 
@@ -249,7 +234,7 @@ namespace NScientist.Tests
 				.Publish(r => result = r)
 				.Run();
 
-			result.TryCleanedResult.ShouldBe(Enumerable.Empty<int>());
+			result.ExperimentCleanedResult.ShouldBe(Enumerable.Empty<int>());
 			result.ControlCleanedResult.ShouldBe(new[] { 1, 2, 3 });
 		}
 

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -111,10 +110,10 @@ namespace NScientist
 				{
 					var experiment = Run(_test);
 
-					results.TryException = experiment.Exception;
-					results.TryDuration = experiment.Duration;
-					results.TryResult = experiment.Result;
-					results.TryCleanedResult = _cleaner(experiment.Result);
+					results.ExperimentException = experiment.Exception;
+					results.ExperimentDuration = experiment.Duration;
+					results.ExperimentResult = experiment.Result;
+					results.ExperimentCleanedResult = _cleaner(experiment.Result);
 				});
 			}
 
@@ -123,8 +122,8 @@ namespace NScientist
 
 			if (results.ExperimentEnabled)
 			{
-				if (_ignores.Any(check => check((TResult)results.ControlResult, (TResult)results.TryResult)) == false)
-					results.Matched = _compare((TResult)results.ControlResult, (TResult)results.TryResult);
+				if (_ignores.Any(check => check((TResult)results.ControlResult, (TResult)results.ExperimentResult)) == false)
+					results.Matched = _compare((TResult)results.ControlResult, (TResult)results.ExperimentResult);
 
 				_publish(results);
 			}
