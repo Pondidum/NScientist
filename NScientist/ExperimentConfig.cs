@@ -113,9 +113,11 @@ namespace NScientist
 			actions.ForEach(action => action());
 
 			if (results.ExperimentEnabled)
+			{
 				results.Matched = _compare((TResult)results.ControlResult, (TResult)results.TryResult);
 
-			_publish(results);
+				_publish(results);
+			}
 
 			if (results.ControlException != null)
 				throw results.ControlException;
