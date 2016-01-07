@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace NScientist
 {
@@ -15,6 +16,7 @@ namespace NScientist
 		private Func<Dictionary<object, object>> _createContext;
 		private string _name;
 		private Func<TResult, object> _cleaner;
+		private List<Func<TResult, TResult, bool>> _ignores;
 
 		public ExperimentConfig(Func<TResult> action)
 		{
@@ -25,6 +27,7 @@ namespace NScientist
 			_createContext = () => new Dictionary<object, object>();
 			_name = "Unnamed Experiment";
 			_cleaner = results => null;
+			_ignores = new List<Func<TResult, TResult, bool>>();
 		}
 
 		public ExperimentConfig<TResult> Try(Func<TResult> action)
@@ -42,6 +45,12 @@ namespace NScientist
 		public ExperimentConfig<TResult> CompareWith(Func<TResult, TResult, bool> compare)
 		{
 			_compare = compare;
+			return this;
+		}
+
+		public ExperimentConfig<TResult> Ignore(Func<TResult, TResult, bool> ignore)
+		{
+			_ignores.Add(ignore);
 			return this;
 		}
 
@@ -114,7 +123,8 @@ namespace NScientist
 
 			if (results.ExperimentEnabled)
 			{
-				results.Matched = _compare((TResult)results.ControlResult, (TResult)results.TryResult);
+				if (_ignores.Any(check => check((TResult)results.ControlResult, (TResult)results.TryResult)) == false)
+					results.Matched = _compare((TResult)results.ControlResult, (TResult)results.TryResult);
 
 				_publish(results);
 			}

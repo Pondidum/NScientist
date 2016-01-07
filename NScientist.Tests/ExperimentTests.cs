@@ -253,5 +253,59 @@ namespace NScientist.Tests
 			result.ControlCleanedResult.ShouldBe(new[] { 1, 2, 3 });
 		}
 
+		[Theory]
+		[InlineData("base", "experiment", true)]
+		[InlineData("base", "base", true)]
+		public void When_ignoring_all_missmatches(string baseline, string attempt, bool matches)
+		{
+			Results result = null;
+
+			Experiment
+				.On(() => baseline)
+				.Try(() => attempt)
+				.Ignore((control, experiment) => true)
+				.Publish(r => result = r)
+				.Run();
+
+			result.Matched.ShouldBe(matches);
+		}
+
+		[Theory]
+		[InlineData("base", "experiment", true)]
+		[InlineData("base", "base", true)]
+		[InlineData("something", "experiment", false)]
+		public void When_ignoring_a_specific_missmatch(string baseline, string attempt, bool matches)
+		{
+			Results result = null;
+
+			Experiment
+				.On(() => baseline)
+				.Try(() => attempt)
+				.Ignore((control, experiment) => control == "base")
+				.Publish(r => result = r)
+				.Run();
+
+			result.Matched.ShouldBe(matches);
+		}
+
+		[Theory]
+		[InlineData("base", "experiment", true)]
+		[InlineData("another", "different", false)]
+		[InlineData("something", "experiment", true)]
+		public void When_ignoring_multiple_mismatches(string baseline, string attempt, bool matches)
+		{
+			Results result = null;
+
+			var exp = Experiment
+				.On(() => baseline)
+				.Try(() => attempt)
+				.Ignore((control, experiment) => control == "base")
+				.Ignore((control, experiment) => experiment == "experiment")
+				.Publish(r => result = r)
+				.Run();
+
+			result.Matched.ShouldBe(matches);
+		}
+
 	}
 }

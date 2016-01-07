@@ -24,5 +24,10 @@ namespace NScientist
 		public Dictionary<object, object> Context { get; set; }
 
 		public string Name { get; set; }
+
+		public Results()
+		{
+			Matched = true;
+		}
 	}
 }
