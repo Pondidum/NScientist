@@ -5,7 +5,7 @@ namespace NScientist
 	public class Results
 	{
 		public Observation Control { get; set; }
-		public Observation Experiment { get; set; }
+		public Observation Trial { get; set; }
 
 		public string Name { get; set; }
 		public Dictionary<object, object> Context { get; set; }

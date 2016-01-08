@@ -25,7 +25,7 @@ namespace NScientist.Tests
 				.Publish(ToThis)
 				.Run();
 
-			_result.Experiment.Exception.ShouldBeOfType<TestException>();
+			_result.Trial.Exception.ShouldBeOfType<TestException>();
 			_result.Control.Result.ShouldBe(true);
 		}
 
@@ -54,7 +54,7 @@ namespace NScientist.Tests
 				.Run();
 
 			_result.Control.Result.ShouldBe(10);
-			_result.Experiment.Result.ShouldBe(20);
+			_result.Trial.Result.ShouldBe(20);
 			result.ShouldBe(10);
 		}
 
@@ -82,7 +82,7 @@ namespace NScientist.Tests
 				.Run();
 
 			_result.Control.Duration.ShouldBeGreaterThanOrEqualTo(TimeSpan.FromMilliseconds(20));
-			_result.Experiment.Duration.ShouldBeGreaterThanOrEqualTo(TimeSpan.FromMilliseconds(10));
+			_result.Trial.Duration.ShouldBeGreaterThanOrEqualTo(TimeSpan.FromMilliseconds(10));
 		}
 
 		[Fact]
@@ -135,7 +135,7 @@ namespace NScientist.Tests
 				.On(() => "test")
 				.Try(() => "TEST")
 				.Publish(ToThis)
-				.CompareWith((control, experiment) => string.Equals(control, experiment, StringComparison.OrdinalIgnoreCase))
+				.CompareWith((control, trial) => string.Equals(control, trial, StringComparison.OrdinalIgnoreCase))
 				.Run();
 
 			_result.Matched.ShouldBe(true);
@@ -166,7 +166,7 @@ namespace NScientist.Tests
 				.Publish(ToThis)
 				.Run();
 
-			_result.Name.ShouldBe("Unnamed Experiment");
+			_result.Name.ShouldBe("Unnamed Trial");
 		}
 
 		[Fact]
@@ -191,7 +191,7 @@ namespace NScientist.Tests
 				.Publish(ToThis)
 				.Run();
 
-			_result.Experiment.CleanedResult.ShouldBe(null);
+			_result.Trial.CleanedResult.ShouldBe(null);
 			_result.Control.CleanedResult.ShouldBe(null);
 		}
 
@@ -205,7 +205,7 @@ namespace NScientist.Tests
 				.Publish(ToThis)
 				.Run();
 
-			_result.Experiment.CleanedResult.ShouldBe(Enumerable.Empty<int>());
+			_result.Trial.CleanedResult.ShouldBe(Enumerable.Empty<int>());
 			_result.Control.CleanedResult.ShouldBe(new[] { 1, 2, 3 });
 		}
 
@@ -217,7 +217,7 @@ namespace NScientist.Tests
 			Experiment
 				.On(() => baseline)
 				.Try(() => attempt)
-				.Ignore((control, experiment) => true)
+				.Ignore((control, trial) => true)
 				.Publish(ToThis)
 				.Run();
 
@@ -233,7 +233,7 @@ namespace NScientist.Tests
 			Experiment
 				.On(() => baseline)
 				.Try(() => attempt)
-				.Ignore((control, experiment) => control == "base")
+				.Ignore((control, trial) => control == "base")
 				.Publish(ToThis)
 				.Run();
 
@@ -249,8 +249,8 @@ namespace NScientist.Tests
 			var exp = Experiment
 				.On(() => baseline)
 				.Try(() => attempt)
-				.Ignore((control, experiment) => control == "base")
-				.Ignore((control, experiment) => experiment == "experiment")
+				.Ignore((control, trial) => control == "base")
+				.Ignore((control, trial) => trial == "experiment")
 				.Publish(ToThis)
 				.Run();
 

@@ -24,19 +24,19 @@ We wrap our existing method of checking a permission with the `On(() => { ... })
 * Swallows (and records) any exceptions thrown by the `Try()` block.
 * Publishes all of this information.
 
-The `On()` block is called the **Control**. The `Try()` block is called the **Experiment**.
+The `On()` block is called the **Control**. The `Try()` block is called the **Trial**.
 
 
 ## Comparing Results
 By default, NScientist compares the results of the `On()` and `Try()` blocks using `object.Equals(control, experiment);`.  This can be overriden by specifying a custom function with the `CompareWith()` block:
 
 ```csharp
-public string GetTemplate(string name, int version)
+public Template GetTemplate(string name, int version)
 {
   return Experiment
     .On(() => OldStore.GetTemplate(name, version))
     .Try(() => TemplateService.Fetch(name, version))
-    .CompareWith((control, exp) => string.Equals(control, experiment, StringComparison.OrdinalIgnoreCase))
+    .CompareWith((control, trial) => string.Equals(control.Content, trial.Content, StringComparison.OrdinalIgnoreCase))
     .Run();
 }
 ```
@@ -45,7 +45,7 @@ public string GetTemplate(string name, int version)
 If your methods take parameters in, it would probably be a good idea to publish these too - this can be done with the `Context()` block:
 
 ```csharp
-public string GetTemplate(string name, int version)
+public Template GetTemplate(string name, int version)
 {
   return Experiment
     .On(() => OldStore.GetTemplate(name, version))

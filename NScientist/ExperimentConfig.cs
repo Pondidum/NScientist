@@ -24,7 +24,7 @@ namespace NScientist
 			_publish = results => { };
 			_compare = (control, experiment) => Equals(control, experiment);
 			_createContext = () => new Dictionary<object, object>();
-			_name = "Unnamed Experiment";
+			_name = "Unnamed Trial";
 			_cleaner = results => null;
 			_ignores = new List<Func<TResult, TResult, bool>>();
 		}
@@ -93,7 +93,7 @@ namespace NScientist
 			if (results.ExperimentEnabled)
 			{
 				results.ExperimentEnabled = true;
-				actions.Add(() => results.Experiment = Run(_test));
+				actions.Add(() => results.Trial = Run(_test));
 			}
 
 			actions.Shuffle();
@@ -105,14 +105,14 @@ namespace NScientist
 
 			if (results.ExperimentEnabled)
 			{
-				if (_ignores.Any(check => check((TResult)results.Control.Result, (TResult)results.Experiment.Result)) == false)
+				if (_ignores.Any(check => check((TResult)results.Control.Result, (TResult)results.Trial.Result)) == false)
 				{
 
-					var experimentResult = results.Experiment.Result != null
-						? (TResult)results.Experiment.Result 
+					var trialResult = results.Trial.Result != null
+						? (TResult)results.Trial.Result 
 						: default(TResult);
 
-					results.Matched = _compare(controlResult, experimentResult);
+					results.Matched = _compare(controlResult, trialResult);
 
 				}
 
