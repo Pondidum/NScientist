@@ -58,4 +58,26 @@ public Template GetTemplate(string name, int version)
 }
 ```
 
+## Cleaning Results
+Sometimes you don't want to log the full results - they might be too big, or maybe you only care about a single property of the results.  You can tell NScientist how to perform a clean of the results:
+
+```csharp
+public Template GetTemplate(string name, int version)
+{
+  return Experiment
+    .On(() => OldStore.GetTemplate(name, version))
+    .Try(() => TemplateService.Fetch(name, version))
+    .Clean(result => result.ID)
+    .Publish(result => {
+      result.Control.Result;    // { Template ... }
+      result.Control.CleanedResult;  // Guid
+      result.Trial.Result;    // { Template ... }
+      result.Trial.CleanedResult;  // Guid
+    })
+    .Run();
+}
+```
+It is up to the publisher to decided whether to log the non-cleaned result if there is also a cleaned result.
+
+
 [github-scientist]: https://github.com/github/scientist
