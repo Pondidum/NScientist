@@ -86,71 +86,58 @@ namespace NScientist
 				ExperimentEnabled = _isEnabled()
 			};
 
-			var controlResult = default(TResult);
-
 			var actions = new List<Action>();
 
-			actions.Add(() =>
-			{
-				var control = Run(_control);
-
-				results.ControlException = control.Exception;
-				results.ControlDuration = control.Duration;
-				results.ControlResult = control.Result;
-				results.ControlCleanedResult = _cleaner(control.Result);
-
-				controlResult = control.Result;
-			});
+			actions.Add(() => results.Control = Run(_control));
 
 			if (results.ExperimentEnabled)
 			{
 				results.ExperimentEnabled = true;
-
-				actions.Add(() =>
-				{
-					var experiment = Run(_test);
-
-					results.ExperimentException = experiment.Exception;
-					results.ExperimentDuration = experiment.Duration;
-					results.ExperimentResult = experiment.Result;
-					results.ExperimentCleanedResult = _cleaner(experiment.Result);
-				});
+				actions.Add(() => results.Experiment = Run(_test));
 			}
 
 			actions.Shuffle();
 			actions.ForEach(action => action());
 
+			var controlResult = results.Control.Result != null
+				? (TResult)results.Control.Result
+				: default(TResult);
+
 			if (results.ExperimentEnabled)
 			{
-				if (_ignores.Any(check => check((TResult)results.ControlResult, (TResult)results.ExperimentResult)) == false)
-					results.Matched = _compare((TResult)results.ControlResult, (TResult)results.ExperimentResult);
+				if (_ignores.Any(check => check((TResult)results.Control.Result, (TResult)results.Experiment.Result)) == false)
+				{
+
+					var experimentResult = results.Experiment.Result != null
+						? (TResult)results.Experiment.Result 
+						: default(TResult);
+
+					results.Matched = _compare(controlResult, experimentResult);
+
+				}
 
 				_publish(results);
 			}
 
-			if (results.ControlException != null)
-				throw results.ControlException;
+			if (results.Control.Exception != null)
+				throw results.Control.Exception;
 
 			return controlResult;
 		}
 
-		private class RunDto
+		private Observation Run(Func<TResult> action)
 		{
-			public TimeSpan Duration;
-			public Exception Exception;
-			public TResult Result;
-		}
-
-		private RunDto Run(Func<TResult> action)
-		{
-			var dto = new RunDto();
+			var dto = new Observation();
 			var sw = new Stopwatch();
 
 			try
 			{
 				sw.Start();
-				dto.Result = action();
+				var result = action();
 				sw.Stop();
+
+				dto.Result = result;
+				dto.CleanedResult = _cleaner(result);
 			}
 			catch (Exception ex)
 			{

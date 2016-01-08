@@ -25,8 +25,8 @@ namespace NScientist.Tests
 				.Publish(ToThis)
 				.Run();
 
-			_result.ExperimentException.ShouldBeOfType<TestException>();
-			_result.ControlResult.ShouldBe(true);
+			_result.Experiment.Exception.ShouldBeOfType<TestException>();
+			_result.Control.Result.ShouldBe(true);
 		}
 
 		[Fact]
@@ -41,7 +41,7 @@ namespace NScientist.Tests
 					.Run();
 			});
 
-			_result.ControlException.ShouldBeOfType<TestException>();
+			_result.Control.Exception.ShouldBeOfType<TestException>();
 		}
 
 		[Fact]
@@ -53,8 +53,8 @@ namespace NScientist.Tests
 				.Publish(ToThis)
 				.Run();
 
-			_result.ControlResult.ShouldBe(10);
-			_result.ExperimentResult.ShouldBe(20);
+			_result.Control.Result.ShouldBe(10);
+			_result.Experiment.Result.ShouldBe(20);
 			result.ShouldBe(10);
 		}
 
@@ -75,20 +75,14 @@ namespace NScientist.Tests
 		[Fact]
 		public void When_measuring_time_taken()
 		{
-			var published = false;
-
 			Experiment
 				.On(() => { Thread.Sleep(20); return true; })
 				.Try(() => { Thread.Sleep(10); return true; })
-				.Publish(results =>
-				{
-					results.ControlDuration.ShouldBeGreaterThanOrEqualTo(TimeSpan.FromMilliseconds(20));
-					results.ExperimentDuration.ShouldBeGreaterThanOrEqualTo(TimeSpan.FromMilliseconds(10));
-					published = true;
-				})
+				.Publish(ToThis)
 				.Run();
 
-			published.ShouldBe(true);
+			_result.Control.Duration.ShouldBeGreaterThanOrEqualTo(TimeSpan.FromMilliseconds(20));
+			_result.Experiment.Duration.ShouldBeGreaterThanOrEqualTo(TimeSpan.FromMilliseconds(10));
 		}
 
 		[Fact]
@@ -197,8 +191,8 @@ namespace NScientist.Tests
 				.Publish(ToThis)
 				.Run();
 
-			_result.ExperimentCleanedResult.ShouldBe(null);
-			_result.ControlCleanedResult.ShouldBe(null);
+			_result.Experiment.CleanedResult.ShouldBe(null);
+			_result.Control.CleanedResult.ShouldBe(null);
 		}
 
 		[Fact]
@@ -211,8 +205,8 @@ namespace NScientist.Tests
 				.Publish(ToThis)
 				.Run();
 
-			_result.ExperimentCleanedResult.ShouldBe(Enumerable.Empty<int>());
-			_result.ControlCleanedResult.ShouldBe(new[] { 1, 2, 3 });
+			_result.Experiment.CleanedResult.ShouldBe(Enumerable.Empty<int>());
+			_result.Control.CleanedResult.ShouldBe(new[] { 1, 2, 3 });
 		}
 
 		[Theory]
