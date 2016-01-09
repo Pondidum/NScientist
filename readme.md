@@ -92,7 +92,7 @@ public Template GetTemplate(string name, int version)
     .Run();
 }
 ```
-You can also use mutliple `Ignore()` blocks with multiple conditions.
+You can also use multiple `Ignore()` blocks with multiple conditions.
 
 ## Enabling and Disabling Experiments
 Sometimes you don't want an experiment to run at all - or only on a subset of calls to the function it wraps.  You can configure this using the `Enable()` block:
@@ -111,6 +111,18 @@ public Template GetTemplate(string name, int version)
 }
 ```
 
-
+## Testing
+When testing, it can be useful to see all the mismatches occouring, even those you have `Ignored()`.  You can tell NScientist to throw an exception whenever there is a mismatch - **don't leave this in your production code!**
+```csharp
+public Template GetTemplate(string name, int version)
+{
+  return Experiment
+    .On(() => OldStore.GetTemplate(name, version))
+    .Try(() => TemplateService.Fetch(name, version))
+    .ThrowMismatches()
+    .Run();
+}
+```
+`ThrowMismatches()` will cause a `MismatchException` to be raised whenever the `control` and `trial` results do not match.
 
 [github-scientist]: https://github.com/github/scientist
