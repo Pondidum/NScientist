@@ -94,5 +94,23 @@ public Template GetTemplate(string name, int version)
 ```
 You can also use mutliple `Ignore()` blocks with multiple conditions.
 
+## Enabling and Disabling Experiments
+Sometimes you don't want an experiment to run at all - or only on a subset of calls to the function it wraps.  You can configure this using the `Enable()` block:
+
+```csharp
+public Template GetTemplate(string name, int version)
+{
+  var random = new Random();
+  var triggerPercent = 20;
+
+  return Experiment
+    .On(() => OldStore.GetTemplate(name, version))
+    .Try(() => TemplateService.Fetch(name, version))
+    .Enable(() => triggerPercent > 0 && triggerPercent > random.Next(100))
+    .Run();
+}
+```
+
+
 
 [github-scientist]: https://github.com/github/scientist
