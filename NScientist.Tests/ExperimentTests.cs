@@ -210,9 +210,9 @@ namespace NScientist.Tests
 		}
 
 		[Theory]
-		[InlineData("base", "experiment", true)]
-		[InlineData("base", "base", true)]
-		public void When_ignoring_all_mismatches(string baseline, string attempt, bool matches)
+		[InlineData("base", "experiment", true, false)]
+		[InlineData("base", "base", true, false)]
+		public void When_ignoring_all_mismatches(string baseline, string attempt, bool ignored, bool matches)
 		{
 			Experiment
 				.On(() => baseline)
@@ -221,14 +221,15 @@ namespace NScientist.Tests
 				.Publish(ToThis)
 				.Run();
 
+			_result.Ignored.ShouldBe(ignored);
 			_result.Matched.ShouldBe(matches);
 		}
 
 		[Theory]
-		[InlineData("base", "experiment", true)]
-		[InlineData("base", "base", true)]
-		[InlineData("something", "experiment", false)]
-		public void When_ignoring_a_specific_mismatch(string baseline, string attempt, bool matches)
+		[InlineData("base", "experiment", true, false)]
+		[InlineData("base", "base", true, false)]
+		[InlineData("something", "experiment", false, false)]
+		public void When_ignoring_a_specific_mismatch(string baseline, string attempt, bool ignored, bool matches)
 		{
 			Experiment
 				.On(() => baseline)
@@ -237,14 +238,15 @@ namespace NScientist.Tests
 				.Publish(ToThis)
 				.Run();
 
+			_result.Ignored.ShouldBe(ignored);
 			_result.Matched.ShouldBe(matches);
 		}
 
 		[Theory]
-		[InlineData("base", "experiment", true)]
-		[InlineData("another", "different", false)]
-		[InlineData("something", "experiment", true)]
-		public void When_ignoring_multiple_mismatches(string baseline, string attempt, bool matches)
+		[InlineData("base", "experiment", true, false)]
+		[InlineData("another", "different", false, false)]
+		[InlineData("something", "experiment", true, false)]
+		public void When_ignoring_multiple_mismatches(string baseline, string attempt, bool ignored, bool matches)
 		{
 			var exp = Experiment
 				.On(() => baseline)
@@ -254,6 +256,7 @@ namespace NScientist.Tests
 				.Publish(ToThis)
 				.Run();
 
+			_result.Ignored.ShouldBe(ignored);
 			_result.Matched.ShouldBe(matches);
 		}
 

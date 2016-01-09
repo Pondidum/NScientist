@@ -105,15 +105,15 @@ namespace NScientist
 
 			if (results.ExperimentEnabled)
 			{
-				if (_ignores.Any(check => check((TResult)results.Control.Result, (TResult)results.Trial.Result)) == false)
-				{
+				results.Ignored = _ignores.Any(check => check((TResult)results.Control.Result, (TResult)results.Trial.Result));
 
+				if (results.Ignored == false)
+				{
 					var trialResult = results.Trial.Result != null
-						? (TResult)results.Trial.Result 
+						? (TResult)results.Trial.Result
 						: default(TResult);
 
 					results.Matched = _compare(controlResult, trialResult);
-
 				}
 
 				_publish(results);
