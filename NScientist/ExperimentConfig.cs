@@ -87,23 +87,23 @@ namespace NScientist
 
 		public TResult Run()
 		{
+			var enabled = _isEnabled();
+
+			if (enabled == false)
+				return _control();
 
 			var results = new Results
 			{
 				Name = _name,
 				Context = _createContext(),
-				ExperimentEnabled = _isEnabled()
+				ExperimentEnabled = true
 			};
 
-			var actions = new List<Action>();
-
-			actions.Add(() => results.Control = Run(_control));
-
-			if (results.ExperimentEnabled)
+			var actions = new List<Action>
 			{
-				results.ExperimentEnabled = true;
-				actions.Add(() => results.Trial = Run(_test));
-			}
+				() => results.Control = Run(_control),
+				() => results.Trial = Run(_test)
+			};
 
 			actions.Shuffle();
 			actions.ForEach(action => action());
@@ -112,21 +112,18 @@ namespace NScientist
 				? (TResult)results.Control.Result
 				: default(TResult);
 
-			if (results.ExperimentEnabled)
+			results.Ignored = _ignores.Any(check => check((TResult)results.Control.Result, (TResult)results.Trial.Result));
+
+			if (results.Ignored == false)
 			{
-				results.Ignored = _ignores.Any(check => check((TResult)results.Control.Result, (TResult)results.Trial.Result));
+				var trialResult = results.Trial.Result != null
+					? (TResult)results.Trial.Result
+					: default(TResult);
 
-				if (results.Ignored == false)
-				{
-					var trialResult = results.Trial.Result != null
-						? (TResult)results.Trial.Result
-						: default(TResult);
-
-					results.Matched = _compare(controlResult, trialResult);
-				}
-
-				_publish(results);
+				results.Matched = _compare(controlResult, trialResult);
 			}
+
+			_publish(results);
 
 			if (_throwMismatches && results.Matched == false)
 				throw new MismatchException(results);

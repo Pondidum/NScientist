@@ -260,7 +260,7 @@ namespace NScientist.Tests
 			_result.Matched.ShouldBe(matches);
 		}
 
-		[Theory]
+		[Fact]
 		public void When_throwing_mismatches_and_they_match()
 		{
 			Experiment
