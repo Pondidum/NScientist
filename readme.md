@@ -79,5 +79,20 @@ public Template GetTemplate(string name, int version)
 ```
 It is up to the publisher to decided whether to log the non-cleaned result if there is also a cleaned result.
 
+## Ignoring Mismatches
+Sometimes during development, some of your code can produce mismatches for reasons you know about, but have not yet fixed.  You can tell an experiment to ignore certain conditions so they don't get flagged as errors:
+
+```csharp
+public Template GetTemplate(string name, int version)
+{
+  return Experiment
+    .On(() => OldStore.GetTemplate(name, version))
+    .Try(() => TemplateService.Fetch(name, version))
+    .Ignore((control, trial) => trial.IsDraft) //ignore drafts for now
+    .Run();
+}
+```
+You can also use mutliple `Ignore()` blocks with multiple conditions.
+
 
 [github-scientist]: https://github.com/github/scientist
