@@ -212,7 +212,7 @@ namespace NScientist.Tests
 		[Theory]
 		[InlineData("base", "experiment", true)]
 		[InlineData("base", "base", true)]
-		public void When_ignoring_all_missmatches(string baseline, string attempt, bool matches)
+		public void When_ignoring_all_mismatches(string baseline, string attempt, bool matches)
 		{
 			Experiment
 				.On(() => baseline)
@@ -228,7 +228,7 @@ namespace NScientist.Tests
 		[InlineData("base", "experiment", true)]
 		[InlineData("base", "base", true)]
 		[InlineData("something", "experiment", false)]
-		public void When_ignoring_a_specific_missmatch(string baseline, string attempt, bool matches)
+		public void When_ignoring_a_specific_mismatch(string baseline, string attempt, bool matches)
 		{
 			Experiment
 				.On(() => baseline)

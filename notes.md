@@ -8,7 +8,7 @@
 * [x] Supports custom context
 * [x] Supports naming of experiments
 * [x] Supports cleaning of results
-* [x] Supports ignoring of missmatches
+* [x] Supports ignoring of mismatches
 
 
 
