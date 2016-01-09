@@ -260,5 +260,44 @@ namespace NScientist.Tests
 			_result.Matched.ShouldBe(matches);
 		}
 
+		[Theory]
+		public void When_throwing_mismatches_and_they_match()
+		{
+			Experiment
+				.On(() => "baseline")
+				.Try(() => "baseline")
+				.Publish(ToThis)
+				.ThrowMismatches()
+				.Run();
+
+			_result.Matched.ShouldBe(true);
+		}
+
+		[Fact]
+		public void When_throwing_mismatches_and_they_dont_match()
+		{
+			Should.Throw<MismatchException>(() =>
+				Experiment
+					.On(() => "baseline")
+					.Try(() => "something else")
+					.Publish(ToThis)
+					.ThrowMismatches()
+					.Run()
+				);
+		}
+
+		[Fact]
+		public void When_throwing_mismatches_and_they_dont_match_and_the_experiment_is_ignored()
+		{
+			Should.Throw<MismatchException>(() =>
+				Experiment
+					.On(() => "baseline")
+					.Try(() => "something else")
+					.Ignore((control, trial) => true)
+					.Publish(ToThis)
+					.ThrowMismatches()
+					.Run()
+				);
+		}
 	}
 }

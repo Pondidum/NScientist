@@ -16,6 +16,7 @@ namespace NScientist
 		private string _name;
 		private Func<TResult, object> _cleaner;
 		private List<Func<TResult, TResult, bool>> _ignores;
+		private bool _throwMismatches;
 
 		public ExperimentConfig(Func<TResult> action)
 		{
@@ -27,6 +28,7 @@ namespace NScientist
 			_name = "Unnamed Trial";
 			_cleaner = results => null;
 			_ignores = new List<Func<TResult, TResult, bool>>();
+			_throwMismatches = false;
 		}
 
 		public ExperimentConfig<TResult> Try(Func<TResult> action)
@@ -77,8 +79,15 @@ namespace NScientist
 			return this;
 		}
 
+		public ExperimentConfig<TResult> ThrowMismatches()
+		{
+			_throwMismatches = true;
+			return this;
+		}
+
 		public TResult Run()
 		{
+
 			var results = new Results
 			{
 				Name = _name,
@@ -118,6 +127,9 @@ namespace NScientist
 
 				_publish(results);
 			}
+
+			if (_throwMismatches && results.Matched == false)
+				throw new MismatchException(results);
 
 			if (results.Control.Exception != null)
 				throw results.Control.Exception;
