@@ -112,16 +112,14 @@ namespace NScientist
 				? (TResult)results.Control.Result
 				: default(TResult);
 
-			results.Ignored = _ignores.Any(check => check((TResult)results.Control.Result, (TResult)results.Trial.Result));
+			var trialResult = results.Trial.Result != null
+				? (TResult)results.Trial.Result
+				: default(TResult);
+
+			results.Ignored = _ignores.Any(check => check(controlResult, trialResult));
 
 			if (results.Ignored == false)
-			{
-				var trialResult = results.Trial.Result != null
-					? (TResult)results.Trial.Result
-					: default(TResult);
-
 				results.Matched = _compare(controlResult, trialResult);
-			}
 
 			_publish(results);
 
