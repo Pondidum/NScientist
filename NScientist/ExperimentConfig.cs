@@ -15,7 +15,7 @@ namespace NScientist
 		private Func<Dictionary<object, object>> _createContext;
 		private string _name;
 		private Func<TResult, object> _cleaner;
-		private List<Func<TResult, TResult, bool>> _ignores;
+		private readonly List<Func<TResult, TResult, bool>> _ignores;
 		private bool _throwMismatches;
 
 		public ExperimentConfig(Func<TResult> action)
@@ -59,6 +59,11 @@ namespace NScientist
 		{
 			_createContext = createContext;
 			return this;
+		}
+
+		public ExperimentConfig<TResult> Publish(IPublisher publisher)
+		{
+			return Publish(publisher.Publish);
 		}
 
 		public ExperimentConfig<TResult> Publish(Action<Results> publish)

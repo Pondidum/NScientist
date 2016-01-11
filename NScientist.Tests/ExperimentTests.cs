@@ -299,5 +299,29 @@ namespace NScientist.Tests
 					.Run()
 				);
 		}
+
+		[Fact]
+		public void When_publishing_to_a_class()
+		{
+			var publisher = new TestPublisher();
+
+			Experiment
+				.On(() => true)
+				.Try(() => true)
+				.Publish(publisher)
+				.Run();
+
+			publisher.Results.Matched.ShouldBe(true);
+		}
+
+		private class TestPublisher : IPublisher
+		{
+			public Results Results { get; private set; }
+
+			public void Publish(Results results)
+			{
+				Results = results;
+			}
+		}
 	}
 }

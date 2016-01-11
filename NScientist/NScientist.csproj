@@ -43,6 +43,7 @@
     <Compile Include="Experiment.cs" />
     <Compile Include="ExperimentConfig.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="IPublisher.cs" />
     <Compile Include="MismatchException.cs" />
     <Compile Include="Observation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
