@@ -105,6 +105,26 @@ namespace NScientist.Tests
 		}
 
 		[Fact]
+		public void When_running_in_parallel_the_order_is_random()
+		{
+			var last = "";
+			var runs = new HashSet<string>();
+
+			var ex = Experiment
+				.On(() => last = "control")
+				.Try(() => last = "try")
+				.Parallel();
+
+			for (int i = 0; i < 1000; i++)
+			{
+				ex.Run();
+				runs.Add(last);
+			}
+
+			runs.Distinct().Count().ShouldBeGreaterThan(1);
+		}
+
+		[Fact]
 		public void When_the_control_and_experiment_match()
 		{
 			Experiment

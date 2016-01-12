@@ -7,7 +7,6 @@ namespace NScientist
 {
 	public class ExperimentConfig<TResult>
 	{
-		private readonly Func<TResult> _control;
 		private Func<TResult> _test;
 		private Func<bool> _isEnabled;
 		private Action<Results> _publish;
@@ -15,20 +14,26 @@ namespace NScientist
 		private Func<Dictionary<object, object>> _createContext;
 		private string _name;
 		private Func<TResult, object> _cleaner;
-		private readonly List<Func<TResult, TResult, bool>> _ignores;
 		private bool _throwMismatches;
+		private bool _parallel;
+
+
+		private readonly Func<TResult> _control;
+		private readonly List<Func<TResult, TResult, bool>> _ignores;
 
 		public ExperimentConfig(Func<TResult> action)
 		{
 			_control = action;
+			_ignores = new List<Func<TResult, TResult, bool>>();
+
 			_isEnabled = () => true;
 			_publish = results => { };
 			_compare = (control, experiment) => Equals(control, experiment);
 			_createContext = () => new Dictionary<object, object>();
 			_name = "Unnamed Trial";
 			_cleaner = results => null;
-			_ignores = new List<Func<TResult, TResult, bool>>();
 			_throwMismatches = false;
+			_parallel = false;
 		}
 
 		public ExperimentConfig<TResult> Try(Func<TResult> action)
@@ -58,6 +63,12 @@ namespace NScientist
 		public ExperimentConfig<TResult> Context(Func<Dictionary<object, object>> createContext)
 		{
 			_createContext = createContext;
+			return this;
+		}
+
+		public ExperimentConfig<TResult> Parallel()
+		{
+			_parallel = true;
 			return this;
 		}
 
@@ -111,7 +122,11 @@ namespace NScientist
 			};
 
 			actions.Shuffle();
-			actions.ForEach(action => action());
+
+			if (_parallel)
+				actions.AsParallel().ForAll(action => action());
+			else
+				actions.ForEach(action => action());
 
 			var controlResult = results.Control.Result != null
 				? (TResult)results.Control.Result
