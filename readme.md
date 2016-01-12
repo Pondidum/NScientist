@@ -125,4 +125,41 @@ public Template GetTemplate(string name, int version)
 ```
 `ThrowMismatches()` will cause a `MismatchException` to be raised whenever the `control` and `trial` results do not match.
 
+## Publishing Results
+
+Publishing results can be done either by passing in a lambda to the `Publish` block, or by passing an instance of an `IPublisher`.  For example the `SerilogPublisher`:
+
+```csharp
+public class SerilogPublisher : IPublisher
+{
+  public static readonly SerilogPublisher Instance = new SerilogPublisher();
+  private static readonly ILogger Log = Serilog.Log.ForContext<SerilogPublisher>();
+
+  public void Publish(Results results)
+  {
+    using (LogContext.PushProperty("results", results, destructureObjects: true))
+    {
+      Log.Information("Experiment {experimentName}", results.Name);
+    }
+  }
+}
+```
+We use the static field so that we avoid recreating the publisher for each experiment run:
+```csharp
+public Template GetTemplate(string name, int version)
+{
+  return Experiment
+    .On(() => OldStore.GetTemplate(name, version))
+    .Try(() => TemplateService.Fetch(name, version))
+    .Publish(SerilogPublisher.Instance)
+    .Run();
+}
+```
+If you publish your results to the [serilog.sinks.elasticsearch sink][nuget-serilog-es] you can then generate some pretty graphs in [Kibana][kibana].  And science is all about graphs!
+
+![Kibana Dashboard][nscientist-dashboard]
+
 [github-scientist]: https://github.com/github/scientist
+[nscientist-dashboard]: docs/nscientist.dashboard.png
+[nuget-serilog-es]: https://www.nuget.org/packages/Serilog.Sinks.ElasticSearch/
+[kibana]: https://www.elastic.co/products/kibana
