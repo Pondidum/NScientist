@@ -2,6 +2,14 @@
 
 A C# library for carefully refactoring critical paths.  Based off of the spec of [Github's Scientist][github-scientist].
 
+[![Build status](https://ci.appveyor.com/api/projects/status/is2kpywdfaovf01e?svg=true)](https://ci.appveyor.com/project/Pondidum/nscientist)
+
+## Installation
+
+```sh
+PM> install-package nscientist
+```
+
 ## How do I do the sciencing?
 
 Say you wanted to change how permissions were checked in a web project.  Your new method has been carefully designed, refactored an tested, but you won't properly know how it behaves under load until it is running under a live system.
