@@ -119,6 +119,20 @@ public Template GetTemplate(string name, int version)
 }
 ```
 
+## Async
+NScientist also supports running your control and trial in parallel - while still shuffling the start order.
+
+```csharp
+public Template GetTemplate(string name, int version)
+{
+  return Experiment
+    .On(() => OldStore.GetTemplate(name, version))
+    .Try(() => TemplateService.Fetch(name, version))
+    .Parallel()
+    .Run();
+}
+```
+
 ## Testing
 When testing, it can be useful to see all the mismatches occouring, even those you have `Ignored()`.  You can tell NScientist to throw an exception whenever there is a mismatch - **don't leave this in your production code!**
 ```csharp
