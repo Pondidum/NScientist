@@ -198,8 +198,8 @@ namespace NScientist.Tests
 				.Publish(ToThis)
 				.Run();
 
-			_result.Name.ShouldBe("Unnamed Trial");
-			_result.Control.Name.ShouldBe("Unnamed Trial");
+			_result.Name.ShouldBe("Unnamed Experiment");
+			_result.Control.Name.ShouldBe("Unnamed Experiment");
 		}
 
 		[Fact]

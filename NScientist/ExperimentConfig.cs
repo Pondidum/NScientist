@@ -31,7 +31,7 @@ namespace NScientist
 			_publish = results => { };
 			_compare = (control, experiment) => Equals(control, experiment);
 			_createContext = () => new Dictionary<object, object>();
-			_name = "Unnamed Trial";
+			_name = "Unnamed Experiment";
 			_cleaner = results => null;
 			_throwMismatches = false;
 			_parallel = false;
