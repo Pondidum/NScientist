@@ -7,7 +7,8 @@ namespace NScientist
 {
 	public class ExperimentConfig<TResult>
 	{
-		private Func<TResult> _test;
+		private KeyValuePair<string , Func<TResult>> _test;
+
 		private Func<bool> _isEnabled;
 		private Action<Results> _publish;
 		private Func<TResult, TResult, bool> _compare;
@@ -38,7 +39,12 @@ namespace NScientist
 
 		public ExperimentConfig<TResult> Try(Func<TResult> action)
 		{
-			_test = action;
+			return Try("Trial 0", action);
+		}
+
+		public ExperimentConfig<TResult> Try(string trialName, Func<TResult> action)
+		{
+			_test = new KeyValuePair<string, Func<TResult>>(trialName, action);
 			return this;
 		}
 
@@ -117,7 +123,7 @@ namespace NScientist
 
 			var actions = new List<Action>
 			{
-				() => results.Control = Run(_control),
+				() => results.Control = Run(new KeyValuePair<string, Func<TResult>>(_name,_control)),
 				() => results.Trial = Run(_test)
 			};
 
@@ -152,7 +158,7 @@ namespace NScientist
 			return controlResult;
 		}
 
-		private Observation Run(Func<TResult> action)
+		private Observation Run(KeyValuePair<string, Func<TResult>> action)
 		{
 			var dto = new Observation();
 			var sw = new Stopwatch();
@@ -160,9 +166,10 @@ namespace NScientist
 			try
 			{
 				sw.Start();
-				var result = action();
+				var result = action.Value();
 				sw.Stop();
 
+				dto.Name = action.Key;
 				dto.Result = result;
 				dto.CleanedResult = _cleaner(result);
 			}

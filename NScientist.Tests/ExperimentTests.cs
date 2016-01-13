@@ -59,6 +59,18 @@ namespace NScientist.Tests
 		}
 
 		[Fact]
+		public void When_running_a_named_trial()
+		{
+			Experiment
+				.On(() => 10)
+				.Try("Test 1", () => 20)
+				.Publish(ToThis)
+				.Run();
+
+			_result.Trial.Name.ShouldBe("Test 1");
+		}
+
+		[Fact]
 		public void When_the_experiment_is_disabled()
 		{
 			var output = Experiment
@@ -187,6 +199,7 @@ namespace NScientist.Tests
 				.Run();
 
 			_result.Name.ShouldBe("Unnamed Trial");
+			_result.Control.Name.ShouldBe("Unnamed Trial");
 		}
 
 		[Fact]
@@ -200,6 +213,7 @@ namespace NScientist.Tests
 				.Run();
 
 			_result.Name.ShouldBe("experiment 01");
+			_result.Control.Name.ShouldBe("experiment 01");
 		}
 
 		[Fact]
