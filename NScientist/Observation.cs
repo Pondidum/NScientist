@@ -9,5 +9,8 @@ namespace NScientist
 		public Exception Exception { get; set; }
 		public object Result { get; set; }
 		public object CleanedResult { get; set; }
+
+		public bool Matched { get; set; }
+		public bool Ignored { get; set; }
 	}
 }

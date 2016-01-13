@@ -7,7 +7,7 @@ namespace NScientist
 {
 	public class ExperimentConfig<TResult>
 	{
-		private KeyValuePair<string , Func<TResult>> _test;
+
 
 		private Func<bool> _isEnabled;
 		private Action<Results> _publish;
@@ -21,10 +21,12 @@ namespace NScientist
 
 		private readonly Func<TResult> _control;
 		private readonly List<Func<TResult, TResult, bool>> _ignores;
+		private readonly List<KeyValuePair<string, Func<TResult>>> _tests;
 
 		public ExperimentConfig(Func<TResult> action)
 		{
 			_control = action;
+			_tests = new List<KeyValuePair<string, Func<TResult>>>();
 			_ignores = new List<Func<TResult, TResult, bool>>();
 
 			_isEnabled = () => true;
@@ -39,12 +41,12 @@ namespace NScientist
 
 		public ExperimentConfig<TResult> Try(Func<TResult> action)
 		{
-			return Try("Trial 0", action);
+			return Try("Trial " + _tests.Count, action);
 		}
 
 		public ExperimentConfig<TResult> Try(string trialName, Func<TResult> action)
 		{
-			_test = new KeyValuePair<string, Func<TResult>>(trialName, action);
+			_tests.Add(new KeyValuePair<string, Func<TResult>>(trialName, action));
 			return this;
 		}
 
@@ -121,12 +123,10 @@ namespace NScientist
 				ExperimentEnabled = true
 			};
 
-			var actions = new List<Action>
-			{
-				() => results.Control = Run(new KeyValuePair<string, Func<TResult>>(_name,_control)),
-				() => results.Trial = Run(_test)
-			};
+			var actions = new List<Action>();
 
+			actions.Add(() => results.Control = Run(new KeyValuePair<string, Func<TResult>>(_name, _control)));
+			actions.AddRange(_tests.Select(test => new Action(() => results.AddObservation(Run(test)))));
 			actions.Shuffle();
 
 			if (_parallel)
@@ -138,18 +138,21 @@ namespace NScientist
 				? (TResult)results.Control.Result
 				: default(TResult);
 
-			var trialResult = results.Trial.Result != null
-				? (TResult)results.Trial.Result
-				: default(TResult);
+			foreach (var trial in results.Trials)
+			{
+				var trialResult = trial.Result != null
+					? (TResult)trial.Result
+					: default(TResult);
 
-			results.Ignored = _ignores.Any(check => check(controlResult, trialResult));
+				trial.Ignored = _ignores.Any(check => check(controlResult, trialResult));
 
-			if (results.Ignored == false)
-				results.Matched = _compare(controlResult, trialResult);
+				if (trial.Ignored == false)
+					trial.Matched = _compare(controlResult, trialResult);
+			}
 
 			_publish(results);
 
-			if (_throwMismatches && results.Matched == false)
+			if (_throwMismatches && results.Trials.Any(o => o.Matched == false))
 				throw new MismatchException(results);
 
 			if (results.Control.Exception != null)

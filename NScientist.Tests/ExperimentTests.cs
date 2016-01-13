@@ -55,9 +55,24 @@ namespace NScientist.Tests
 
 			_result.Control.Result.ShouldBe(10);
 			_result.Trial.Result.ShouldBe(20);
+			_result.Trials.Single().ShouldBe(_result.Trial);
 			result.ShouldBe(10);
 		}
 
+		[Fact]
+		public void When_running_multiple_actions()
+		{
+			var result = Experiment
+				.On(() => 10)
+				.Try(() => 20)
+				.Try(() => 30)
+				.Publish(ToThis)
+				.Run();
+
+			_result.Control.Result.ShouldBe(10);
+			_result.Trials.Select(o => o.Result).ShouldBe(new object[] { 20, 30 }, ignoreOrder: true);
+			result.ShouldBe(10);
+		}
 		[Fact]
 		public void When_running_a_named_trial()
 		{
@@ -244,9 +259,9 @@ namespace NScientist.Tests
 		}
 
 		[Theory]
-		[InlineData("base", "experiment", true, false)]
-		[InlineData("base", "base", true, false)]
-		public void When_ignoring_all_mismatches(string baseline, string attempt, bool ignored, bool matches)
+		[InlineData("base", "experiment", true)]
+		[InlineData("base", "base", true)]
+		public void When_ignoring_all_mismatches(string baseline, string attempt, bool ignored)
 		{
 			Experiment
 				.On(() => baseline)
@@ -256,14 +271,13 @@ namespace NScientist.Tests
 				.Run();
 
 			_result.Ignored.ShouldBe(ignored);
-			_result.Matched.ShouldBe(matches);
 		}
 
 		[Theory]
-		[InlineData("base", "experiment", true, false)]
-		[InlineData("base", "base", true, false)]
-		[InlineData("something", "experiment", false, false)]
-		public void When_ignoring_a_specific_mismatch(string baseline, string attempt, bool ignored, bool matches)
+		[InlineData("base", "experiment", true)]
+		[InlineData("base", "base", true)]
+		[InlineData("something", "experiment", false)]
+		public void When_ignoring_a_specific_mismatch(string baseline, string attempt, bool ignored)
 		{
 			Experiment
 				.On(() => baseline)
@@ -273,14 +287,13 @@ namespace NScientist.Tests
 				.Run();
 
 			_result.Ignored.ShouldBe(ignored);
-			_result.Matched.ShouldBe(matches);
 		}
 
 		[Theory]
-		[InlineData("base", "experiment", true, false)]
-		[InlineData("another", "different", false, false)]
-		[InlineData("something", "experiment", true, false)]
-		public void When_ignoring_multiple_mismatches(string baseline, string attempt, bool ignored, bool matches)
+		[InlineData("base", "experiment", true)]
+		[InlineData("another", "different", false)]
+		[InlineData("something", "experiment", true)]
+		public void When_ignoring_multiple_mismatches(string baseline, string attempt, bool ignored)
 		{
 			var exp = Experiment
 				.On(() => baseline)
@@ -291,7 +304,6 @@ namespace NScientist.Tests
 				.Run();
 
 			_result.Ignored.ShouldBe(ignored);
-			_result.Matched.ShouldBe(matches);
 		}
 
 		[Fact]
