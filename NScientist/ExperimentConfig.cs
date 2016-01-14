@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.AccessControl;
 
 namespace NScientist
 {
@@ -114,17 +115,11 @@ namespace NScientist
 			if (enabled == false)
 				return _control.Execute();
 
-			var results = new Results
-			{
-				Name = _control.TrialName,
-				Context = _createContext(),
-				ExperimentEnabled = true
-			};
-
 			var actions = new List<Action>();
 
-			actions.Add(() => results.Control = _control.Run(_cleaner));
-			actions.AddRange(_tests.Select(test => new Action(() => results.AddObservation(test.Run(_cleaner)))));
+			actions.Add(() => _control.Run(_cleaner));
+			actions.AddRange(_tests.Select(trial => (Action)(() => trial.Run(_cleaner))));
+
 			actions.Shuffle();
 
 			if (_parallel)
@@ -132,21 +127,21 @@ namespace NScientist
 			else
 				actions.ForEach(action => action());
 
-			var controlResult = results.Control.Result != null
-				? (TResult)results.Control.Result
+			var controlResult = _control.Observation.Result != null
+				? (TResult)_control.Observation.Result
 				: default(TResult);
 
-			foreach (var trial in results.Trials)
+			foreach (var trial in _tests)
+				trial.Evaluate(_ignores, _compare, controlResult);
+
+			var results = new Results
 			{
-				var trialResult = trial.Result != null
-					? (TResult)trial.Result
-					: default(TResult);
-
-				trial.Ignored = _ignores.Any(check => check(controlResult, trialResult));
-
-				if (trial.Ignored == false)
-					trial.Matched = _compare(controlResult, trialResult);
-			}
+				Name = _control.TrialName,
+				Context = _createContext(),
+				ExperimentEnabled = true,
+				Control = _control.Observation,
+				Trials = _tests.Select(t => t.Observation)
+			};
 
 			_publish(results);
 
@@ -156,35 +151,7 @@ namespace NScientist
 			if (results.Control.Exception != null)
 				throw results.Control.Exception;
 
-			return controlResult;
+			return (TResult)_control.Observation.Result;
 		}
-
-		//private Observation Run(Trial<TResult> action)
-		//{
-		//	var dto = new Observation();
-		//	var sw = new Stopwatch();
-
-		//	try
-		//	{
-		//		sw.Start();
-		//		var result = action.Value();
-		//		sw.Stop();
-
-		//		dto.Name = action.Key;
-		//		dto.Result = result;
-		//		dto.CleanedResult = _cleaner(result);
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		sw.Stop();
-		//		dto.Exception = ex;
-		//	}
-		//	finally
-		//	{
-		//		dto.Duration = sw.Elapsed;
-		//	}
-
-		//	return dto;
-		//}
 	}
 }

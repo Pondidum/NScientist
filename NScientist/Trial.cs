@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace NScientist
 {
 	public class Trial<TResult>
 	{
 		public string TrialName { get; set; }
+		public Observation Observation { get; private set; }
+
 		private readonly Func<TResult> _action;
 
 		public Trial(Func<TResult> action)
@@ -18,7 +22,7 @@ namespace NScientist
 			return _action();
 		}
 
-		public Observation Run(Func<TResult, object> cleaner)
+		public void Run(Func<TResult, object> cleaner)
 		{
 			var dto = new Observation();
 			var sw = new Stopwatch();
@@ -43,7 +47,19 @@ namespace NScientist
 				dto.Duration = sw.Elapsed;
 			}
 
-			return dto;
+			Observation = dto;
+		}
+
+		public void Evaluate(List<Func<TResult, TResult, bool>> ignores, Func<TResult, TResult, bool> compare, TResult controlResult)
+		{
+			var trialResult = Observation.Result != null
+				? (TResult)Observation.Result
+				: default(TResult);
+
+			Observation.Ignored = ignores.Any(check => check(controlResult, trialResult));
+
+			if (Observation.Ignored == false)
+				Observation.Matched = compare(controlResult, trialResult);
 		}
 	}
 }
