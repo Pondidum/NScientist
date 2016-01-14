@@ -3,6 +3,8 @@
 A C# library for carefully refactoring critical paths.  Based off of the spec of [Github's Scientist][github-scientist].
 
 [![Build status](https://ci.appveyor.com/api/projects/status/is2kpywdfaovf01e?svg=true)](https://ci.appveyor.com/project/Pondidum/nscientist)
+[![Nuget Version](https://img.shields.io/nuget/v/NScientist.svg)](https://www.nuget.org/packages/nscientist)
+[![Nuget Downloads](https://img.shields.io/nuget/dt/NScientist.svg)](https://www.nuget.org/packages/nscientist)
 
 ## Installation
 
