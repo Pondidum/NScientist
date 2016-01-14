@@ -70,9 +70,10 @@ namespace NScientist.Tests
 				.Run();
 
 			_result.Control.Result.ShouldBe(10);
-			_result.Trials.Select(o => o.Result).ShouldBe(new object[] { 20, 30 }, ignoreOrder: true);
+			_result.Trials.Select(o => o.Result).ShouldBe(new object[] { 20, 30 });
 			result.ShouldBe(10);
 		}
+
 		[Fact]
 		public void When_running_a_named_trial()
 		{
