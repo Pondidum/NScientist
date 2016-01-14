@@ -1,51 +1,49 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Security.AccessControl;
 
 namespace NScientist
 {
 	public class ExperimentConfig<TResult>
 	{
-
-
 		private Func<bool> _isEnabled;
 		private Action<Results> _publish;
-		private Func<TResult, TResult, bool> _compare;
+
 		private Func<Dictionary<object, object>> _createContext;
-		private Func<TResult, object> _cleaner;
 		private bool _throwMismatches;
 		private bool _parallel;
 
+		public Func<TResult, TResult, bool> Compare { get; private set; }
+		public Func<TResult, object> Cleaner { get; private set; }
+		public List<Func<TResult, TResult, bool>> Ignores { get; }
 
 		private readonly Trial<TResult> _control;
-		private readonly List<Func<TResult, TResult, bool>> _ignores;
-		private readonly List<Trial<TResult>> _tests;
+		private readonly List<Trial<TResult>> _trials;
 
 		public ExperimentConfig(Func<TResult> action)
 		{
-			_control = new Trial<TResult>(action) { TrialName = "Unnamed Experiment" };
-			_tests = new List<Trial<TResult>>();
-			_ignores = new List<Func<TResult, TResult, bool>>();
+			_control = new Trial<TResult>(this, action) { TrialName = "Unnamed Experiment" };
+			_trials = new List<Trial<TResult>>();
+
+			Ignores = new List<Func<TResult, TResult, bool>>();
+			Compare = (control, experiment) => Equals(control, experiment);
+			Cleaner = results => null;
 
 			_isEnabled = () => true;
 			_publish = results => { };
-			_compare = (control, experiment) => Equals(control, experiment);
 			_createContext = () => new Dictionary<object, object>();
-			_cleaner = results => null;
 			_throwMismatches = false;
 			_parallel = false;
 		}
 
 		public ExperimentConfig<TResult> Try(Func<TResult> action)
 		{
-			return Try("Trial " + _tests.Count, action);
+			return Try("Trial " + _trials.Count, action);
 		}
 
 		public ExperimentConfig<TResult> Try(string trialName, Func<TResult> action)
 		{
-			_tests.Add(new Trial<TResult>(action) { TrialName = trialName });
+			_trials.Add(new Trial<TResult>(this, action) { TrialName = trialName });
 			return this;
 		}
 
@@ -57,13 +55,13 @@ namespace NScientist
 
 		public ExperimentConfig<TResult> CompareWith(Func<TResult, TResult, bool> compare)
 		{
-			_compare = compare;
+			Compare = compare;
 			return this;
 		}
 
 		public ExperimentConfig<TResult> Ignore(Func<TResult, TResult, bool> ignore)
 		{
-			_ignores.Add(ignore);
+			Ignores.Add(ignore);
 			return this;
 		}
 
@@ -98,7 +96,7 @@ namespace NScientist
 
 		public ExperimentConfig<TResult> Clean<TCleaned>(Func<TResult, TCleaned> cleaner)
 		{
-			_cleaner = results => cleaner(results);
+			Cleaner = results => cleaner(results);
 			return this;
 		}
 
@@ -117,8 +115,8 @@ namespace NScientist
 
 			var actions = new List<Action>();
 
-			actions.Add(() => _control.Run(_cleaner));
-			actions.AddRange(_tests.Select(trial => (Action)(() => trial.Run(_cleaner))));
+			actions.Add(() => _control.Run());
+			actions.AddRange(_trials.Select(trial => (Action)trial.Run));
 
 			actions.Shuffle();
 
@@ -131,8 +129,8 @@ namespace NScientist
 				? (TResult)_control.Observation.Result
 				: default(TResult);
 
-			foreach (var trial in _tests)
-				trial.Evaluate(_ignores, _compare, controlResult);
+			foreach (var trial in _trials)
+				trial.Evaluate(controlResult);
 
 			var results = new Results
 			{
@@ -140,7 +138,7 @@ namespace NScientist
 				Context = _createContext(),
 				ExperimentEnabled = true,
 				Control = _control.Observation,
-				Trials = _tests.Select(t => t.Observation)
+				Trials = _trials.Select(t => t.Observation)
 			};
 
 			_publish(results);

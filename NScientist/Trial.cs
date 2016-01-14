@@ -10,10 +10,12 @@ namespace NScientist
 		public string TrialName { get; set; }
 		public Observation Observation { get; private set; }
 
+		private readonly ExperimentConfig<TResult> _experiment;
 		private readonly Func<TResult> _action;
 
-		public Trial(Func<TResult> action)
+		public Trial(ExperimentConfig<TResult> experiment, Func<TResult> action)
 		{
+			_experiment = experiment;
 			_action = action;
 		}
 
@@ -22,7 +24,7 @@ namespace NScientist
 			return _action();
 		}
 
-		public void Run(Func<TResult, object> cleaner)
+		public void Run()
 		{
 			var dto = new Observation();
 			var sw = new Stopwatch();
@@ -35,7 +37,7 @@ namespace NScientist
 
 				dto.Name = TrialName;
 				dto.Result = result;
-				dto.CleanedResult = cleaner(result);
+				dto.CleanedResult  =_experiment.Cleaner(result);
 			}
 			catch (Exception ex)
 			{
@@ -50,16 +52,16 @@ namespace NScientist
 			Observation = dto;
 		}
 
-		public void Evaluate(List<Func<TResult, TResult, bool>> ignores, Func<TResult, TResult, bool> compare, TResult controlResult)
+		public void Evaluate(TResult controlResult)
 		{
 			var trialResult = Observation.Result != null
 				? (TResult)Observation.Result
 				: default(TResult);
 
-			Observation.Ignored = ignores.Any(check => check(controlResult, trialResult));
+			Observation.Ignored = _experiment.Ignores.Any(check => check(controlResult, trialResult));
 
 			if (Observation.Ignored == false)
-				Observation.Matched = compare(controlResult, trialResult);
+				Observation.Matched = _experiment.Compare(controlResult, trialResult);
 		}
 	}
 }
