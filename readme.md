@@ -27,7 +27,7 @@ public bool CanView()
 ```
 We wrap our existing method of checking a permission with the `On(() => { ... })` lambda, and put our new method in the `Try(() => { ... })` lambda.  The `Run()` call will always return the results of the `On()` block, but it also does a lot of things in the background:
 
-* Decideds wheter to run the `Try()` block.
+* Decides whether to run the `Try()` block.
 * Randomizes the order `Try()` and `On()` blocks are run.
 * Stores the duration each block takes to run.
 * Compares the results of both blocks.
@@ -38,7 +38,7 @@ The `On()` block is called the **Control**. The `Try()` block is called the **Tr
 
 
 ## Comparing Results
-By default, NScientist compares the results of the `On()` and `Try()` blocks using `object.Equals(control, experiment);`.  This can be overriden by specifying a custom function with the `CompareWith()` block:
+By default, NScientist compares the results of the `On()` and `Try()` blocks using `object.Equals(control, experiment);`.  This can be overridden by specifying a custom function with the `CompareWith()` block:
 
 ```csharp
 public Template GetTemplate(string name, int version)
@@ -136,7 +136,7 @@ public Template GetTemplate(string name, int version)
 ```
 
 ## Testing
-When testing, it can be useful to see all the mismatches occouring, even those you have `Ignored()`.  You can tell NScientist to throw an exception whenever there is a mismatch - **don't leave this in your production code!**
+When testing, it can be useful to see all the mismatches occurring, even those you have `Ignored()`.  You can tell NScientist to throw an exception whenever there is a mismatch - **don't leave this in your production code!**
 ```csharp
 public Template GetTemplate(string name, int version)
 {
