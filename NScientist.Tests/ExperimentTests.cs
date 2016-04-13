@@ -109,8 +109,8 @@ namespace NScientist.Tests
 				.Publish(ToThis)
 				.Run();
 
-			_result.Control.Duration.ShouldBeGreaterThanOrEqualTo(TimeSpan.FromMilliseconds(20));
-			_result.Trial.Duration.ShouldBeGreaterThanOrEqualTo(TimeSpan.FromMilliseconds(10));
+			_result.Control.Duration.ShouldBeGreaterThanOrEqualTo(TimeSpan.FromMilliseconds(19));
+			_result.Trial.Duration.ShouldBeGreaterThanOrEqualTo(TimeSpan.FromMilliseconds(9));
 		}
 
 		[Fact]
@@ -361,7 +361,45 @@ namespace NScientist.Tests
 			publisher.Results.Matched.ShouldBe(true);
 		}
 
-		private class TestPublisher : IPublisher
+        [Fact]
+        public void When_switch_to_trial_is_false()
+        {
+            var result = Experiment
+                .On(() => true)
+                .Try(() => false)
+                .SwitchToTrial(() => false)
+                .Run();
+
+            result.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void When_switch_to_trial_is_true_and_only_one_trial_set()
+        {
+            var result = Experiment
+                .On(() => true)
+                .Try(() => false)
+                .SwitchToTrial(() => true)
+                .Publish((r) => { string str = null; str.ToString(); })
+                .Run();
+
+            result.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void When_switch_to_trial_is_true_and_more_than_one_trial_set()
+        {
+            var result = Experiment
+                .On(() => true)
+                .Try(() => false)
+                .Try(() => false)
+                .SwitchToTrial(() => true)
+                .Run();
+
+            result.ShouldBeTrue();
+        }
+
+        private class TestPublisher : IPublisher
 		{
 			public Results Results { get; private set; }
 
