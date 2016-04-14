@@ -19,6 +19,7 @@ namespace NScientist
 
 		private readonly Trial<TResult> _control;
 		private readonly List<Trial<TResult>> _trials;
+		private Func<bool> _switchToTrial;
 
 		public ExperimentConfig(Func<TResult> action)
 		{
@@ -34,6 +35,7 @@ namespace NScientist
 			_createContext = () => new Dictionary<object, object>();
 			_throwMismatches = false;
 			_parallel = false;
+			_switchToTrial = () => false;
 		}
 
 		public ExperimentConfig<TResult> Try(Func<TResult> action)
@@ -106,8 +108,20 @@ namespace NScientist
 			return this;
 		}
 
+		public ExperimentConfig<TResult> SwitchToTrial(Func<bool> switchToTrial)
+		{
+			_switchToTrial = switchToTrial;
+			return this;
+		}
+
 		public TResult Run()
 		{
+			//if switchToTrial and we're only running one trial, use that trial instead of the control
+			//if more than one trial is set, we can't know which trial to switch to so continue as normal experiment
+			var shouldSwitchToTrial = _switchToTrial();
+			if (shouldSwitchToTrial && _trials.Count == 1)
+				return _trials.Single().Execute();
+
 			var enabled = _isEnabled();
 
 			if (enabled == false)
