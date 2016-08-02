@@ -39,18 +39,10 @@ gulp.task('version', function() {
     .pipe(gulp.dest('./src/' + config.name + '/Properties'));
 });
 
-gulp.task('compile', [ "restore", "version" ], function() {
-  return gulp
-    .src(config.name + ".sln")
-    .pipe(msbuild({
-      targets: [ "Clean", "Rebuild" ],
-      configuration: config.mode,
-      toolsVersion: 14.0,
-      errorOnFail: true,
-      stdout: true,
-      verbosity: "minimal"
-    }));
-});
+gulp.task('compile', [ "restore", "version" ], shell.task([
+  'dotnet build ./src/' + config.name + ' --configuration Release',
+  'dotnet build ./src/' + config.name + '.Tests --configuration Release'
+]));
 
 gulp.task('test', [ "compile" ], function() {
   return gulp
