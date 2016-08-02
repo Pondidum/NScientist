@@ -1,18 +1,10 @@
 obj
 bin
-*.ReSharper.user
-_ReSharper.*
-*.resharper
 *.csproj.user
 *.vbproj.user
-*.suo
-*.cache
-*.DotSettings
-*.DotSettings.user
 *.xproj.user
 
 project.lock.json
-AssemblyVersion.cs
 
 /packages
 /node_modules

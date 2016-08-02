@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>NScientist</id>
+    <title>NScientist</title>
+    <version>$version$</version>
+    <authors>Andy Dote</authors>
+    <description>A library for carefully refactoring critical paths, inspired by https://github.com/github/scientist</description>
+    <summary>A library for carefully refactoring critical paths, inspired by Github's Scientist.</summary>
+    <projectUrl>https://github.com/pondidum/nscientist</projectUrl>
+    <licenseUrl>https://github.com/Pondidum/nscientist/blob/master/LICENSE.txt</licenseUrl>
+    <tags>refactoring scientist</tags>
+  </metadata>
+</package>
