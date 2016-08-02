@@ -40,21 +40,13 @@ gulp.task('version', function() {
 });
 
 gulp.task('compile', [ "restore", "version" ], shell.task([
-  'dotnet build ./src/' + config.name + ' --configuration Release',
-  'dotnet build ./src/' + config.name + '.Tests --configuration Release'
+  'dotnet build ./src/' + config.name + ' --configuration ' + config.mode,
+  'dotnet build ./src/' + config.name + '.Tests --configuration ' + config.mode
 ]));
 
-gulp.task('test', [ "compile" ], function() {
-  return gulp
-    .src(['**/bin/*/*.Tests.dll'], { read: false })
-    .pipe(xunit({
-      executable: './packages/xunit.runner.console.2.1.0/tools/xunit.console.exe',
-      options: {
-        verbose: true,
-        nologo: true,
-      }
-    }));
-});
+gulp.task('test', [ "compile" ], shell.task([
+  'dotnet test ./src/' + config.name + '.Tests --configuration ' + config.mode
+]));
 
 gulp.task('pack', [ 'test' ], function () {
   return gulp
