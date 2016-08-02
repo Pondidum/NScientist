@@ -29,7 +29,7 @@ gulp.task('restore', function() {
 
 gulp.task('version', function() {
   return gulp
-    .src('src/' + config.name + '/Properties/AssemblyVersion.base')
+    .src('./AssemblyVersion.base')
     .pipe(rename("AssemblyVersion.cs"))
     .pipe(assemblyInfo({
       version: config.version,
