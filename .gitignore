@@ -9,7 +9,9 @@ _ReSharper.*
 *.cache
 *.DotSettings
 *.DotSettings.user
+*.xproj.user
 
+project.lock.json
 AssemblyVersion.cs
 
 /packages
