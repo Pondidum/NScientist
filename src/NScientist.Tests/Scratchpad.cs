@@ -1,5 +1,4 @@
-﻿using Shouldly;
-using Xunit;
+﻿using Xunit;
 
 namespace NScientist.Tests
 {
@@ -10,19 +9,5 @@ namespace NScientist.Tests
 		{
 			
 		}
-
-		[Fact]
-		public void When_passing()
-		{
-			Add(2, 2).ShouldBe(4);
-		}
-
-		[Fact]
-		public void When_failing()
-		{
-			Add(2, 2).ShouldBe(5);
-		}
-
-		private static int Add(int x, int y) => x + y;
 	}
 }

@@ -4,6 +4,7 @@
     "dependencies": {
         "xunit": "2.1.0",
         "Shouldly": "2.8.1",
+        "NScientist": "1.0.0-*",
         "dotnet-test-xunit": "1.0.0-rc2-build10025"
     },
     "frameworks": {
