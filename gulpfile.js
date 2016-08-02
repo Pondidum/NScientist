@@ -2,7 +2,6 @@ var gulp = require("gulp");
 var shell = require("gulp-shell");
 var args = require('yargs').argv;
 var fs = require("fs");
-var rename = require('gulp-rename');
 var debug = require('gulp-debug');
 
 var project = JSON.parse(fs.readFileSync("./package.json"));
