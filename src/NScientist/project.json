@@ -10,6 +10,12 @@
             "dependencies": {
                 "Microsoft.NETCore.Platforms": "1.0.1"
             }
+        },
+        "netstandard1.3": {
+            "dependencies": {
+                "System.Linq": "4.1.0",
+                "System.Linq.Parallel": "4.0.1"
+            }
         }
     }
 }
